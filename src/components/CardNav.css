@@ -1,0 +1,188 @@
+/* CardNav, адаптированный под токены TideWatch (тема-зависимый). */
+
+.card-nav-container {
+  position: relative;
+  height: 60px;
+  z-index: 50;
+}
+
+.card-nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: block;
+  height: 60px;
+  padding: 0;
+  background-color: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  will-change: height;
+}
+
+.card-nav-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.6rem 0.5rem 1rem;
+  z-index: 2;
+}
+
+.hamburger-menu {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  gap: 6px;
+  padding-right: 6px;
+}
+.hamburger-menu:hover .hamburger-line { opacity: 0.7; }
+
+.hamburger-line {
+  width: 26px;
+  height: 2px;
+  background-color: currentColor;
+  border-radius: 2px;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+  transform-origin: 50% 50%;
+}
+.hamburger-menu.open .hamburger-line:first-child { transform: translateY(4px) rotate(45deg); }
+.hamburger-menu.open .hamburger-line:last-child { transform: translateY(-4px) rotate(-45deg); }
+
+.cardnav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+
+.card-nav-cta-button {
+  border: 1px solid transparent;
+  border-radius: 0.65rem;
+  padding: 0 0.95rem;
+  height: 38px;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: opacity 0.25s ease, transform 0.15s ease;
+}
+.card-nav-cta-button:hover { opacity: 0.9; }
+.card-nav-cta-button:active { transform: scale(0.97); }
+
+.card-nav-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 60px;
+  bottom: 0;
+  padding: 0.5rem;
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+.card-nav.open .card-nav-content { visibility: visible; pointer-events: auto; }
+
+.cardnav-blobs {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.nav-card {
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: 0.7rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px;
+  gap: 8px;
+  user-select: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--line);
+}
+
+.nav-card-label {
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: -0.3px;
+}
+
+.nav-card-links {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-card-link {
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+  transition: opacity 0.25s ease, transform 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.92;
+}
+.nav-card-link:hover { opacity: 1; transform: translateX(2px); }
+.nav-card-link-icon { flex-shrink: 0; opacity: 0.8; }
+
+/* На средних ширинах прячем текст CTA (иконка-только), чтобы длинные
+   переводы (напр. немецкий «Einstellungen») не налезали на wordmark */
+@media (max-width: 880px) {
+  .card-nav-cta-button { padding: 0 0.7rem; }
+  .card-nav-cta-button .cta-text { display: none; }
+}
+
+@media (max-width: 768px) {
+  .card-nav-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  /* На мобилке никаких замеров/фиксированных высот: меню открывается на
+     естественную высоту, карточки целиком, при нехватке экрана — скролл. */
+  .card-nav.open {
+    height: auto !important;
+  }
+  .card-nav.open .card-nav-content {
+    position: static;
+    margin-top: 60px;
+    visibility: visible;
+    pointer-events: auto;
+    max-height: calc(100dvh - 180px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding-bottom: 10px;
+  }
+  .nav-card { flex: none; }
+  .nav-card-links { margin-top: 8px; }
+}
