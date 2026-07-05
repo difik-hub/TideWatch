@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import Nav from '../components/Nav'
 import PriceChart from '../components/PriceChart'
 import AnimatedNumber from '../components/AnimatedNumber'
+import InfoTip from '../components/InfoTip'
 import Icon, { TrendArrow } from '../components/Icon'
 import { fetchCoin, fetchMarketChart, fetchMarkets } from '../lib/api'
 import { buildSummary } from '../lib/summary'
@@ -71,10 +72,10 @@ function SectionTitle({ icon, children }) {
   )
 }
 
-function Stat({ label, value }) {
+function Stat({ label, value, tip }) {
   return (
     <div className="px-3.5 py-3">
-      <div className="text-faint text-[11px]">{label}</div>
+      <div className="text-faint text-[11px] flex items-center gap-1.5">{label}{tip && <InfoTip text={tip} />}</div>
       <div className="font-medium mt-0.5 text-ink tnum text-[15px]">{value}</div>
     </div>
   )
@@ -323,12 +324,12 @@ export default function CoinPage() {
           <SectionTitle icon="bars">{t('pDetails')}</SectionTitle>
           <div className="card rounded-2xl grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-line overflow-hidden">
             <Stat label={t('stMarketCap')} value={formatBig(md?.market_cap?.[currency], currency)} />
-            <Stat label={t('stVolume')} value={formatBig(md?.total_volume?.[currency], currency)} />
+            <Stat label={t('stVolume')} value={formatBig(md?.total_volume?.[currency], currency)} tip={t('tipVol')} />
             <Stat label={t('stHigh')} value={formatPrice(md?.high_24h?.[currency], currency)} />
             <Stat label={t('stLow')} value={formatPrice(md?.low_24h?.[currency], currency)} />
-            <Stat label={t('stAth')} value={formatPrice(md?.ath?.[currency], currency)} />
-            <Stat label={t('stAtl')} value={formatPrice(md?.atl?.[currency], currency)} />
-            <Stat label={t('stCirc')} value={formatNum(md?.circulating_supply)} />
+            <Stat label={t('stAth')} value={formatPrice(md?.ath?.[currency], currency)} tip={t('tipAth')} />
+            <Stat label={t('stAtl')} value={formatPrice(md?.atl?.[currency], currency)} tip={t('tipAtl')} />
+            <Stat label={t('stCirc')} value={formatNum(md?.circulating_supply)} tip={t('tipCirc')} />
             <Stat label={t('stSupply')} value={md?.total_supply ? formatNum(md.total_supply) : '∞'} />
             <Stat label={t('stWeek')} value={formatPct(md?.price_change_percentage_7d_in_currency?.[currency])} />
           </div>

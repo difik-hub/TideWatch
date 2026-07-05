@@ -3,13 +3,14 @@ import { useT } from '../i18n/useT'
 import { formatBig, formatPct, trendOf } from '../lib/format'
 import { buildMarketSummary } from '../lib/marketSummary'
 import Icon, { TrendArrow } from './Icon'
+import InfoTip from './InfoTip'
 
 const trendColor = { rise: 'text-up', fall: 'text-down', flat: 'text-soft' }
 
-function Metric({ label, value, trend, sub, arrow }) {
+function Metric({ label, value, trend, sub, arrow, tip }) {
   return (
     <div className="px-4 py-3.5">
-      <div className="text-[11px] uppercase tracking-wide text-faint">{label}</div>
+      <div className="text-[11px] uppercase tracking-wide text-faint flex items-center gap-1.5">{label}{tip && <InfoTip text={tip} />}</div>
       <div className={`text-lg font-semibold mt-1 tnum flex items-center gap-1 ${trend ? trendColor[trend] : 'text-ink'}`}>
         {arrow && trend && <TrendArrow dir={trend} size={11} />}
         {value}
@@ -84,6 +85,7 @@ export default function Hero({ global, coins }) {
       <div className="card rounded-2xl grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-line overflow-hidden">
         <Metric
           label={t('mMarketCap')}
+          tip={t('tipMcap')}
           value={mcap ? formatBig(mcap, currency) : '—'}
           trend={trendOf(mcapChange)}
           arrow
@@ -91,11 +93,13 @@ export default function Hero({ global, coins }) {
         />
         <Metric
           label={t('mBtcDom')}
+          tip={t('tipDom')}
           value={btcDom != null ? btcDom.toFixed(1) + '%' : '—'}
           sub={t('sBtcShare')}
         />
         <Metric
           label={t('mBreadth')}
+          tip={t('tipBreadth')}
           value={total ? `${up} / ${down}` : '—'}
           trend={up >= down ? 'rise' : 'fall'}
           sub={total ? t('sInPlus', { v: upPct, n: coins.length }) : null}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { fetchFearGreed } from '../lib/api'
 import { useT } from '../i18n/useT'
+import InfoTip from './InfoTip'
 
 // Полукруглый gauge индекса страха и жадности (0–100).
 export default function FearGreed() {
@@ -43,7 +44,7 @@ export default function FearGreed() {
         <circle cx={cx} cy={cy} r="6" fill="var(--ink)" />
       </svg>
       <div className="min-w-0">
-        <div className="text-[11px] uppercase tracking-wide text-faint">{t('fngTitle')}</div>
+        <div className="text-[11px] uppercase tracking-wide text-faint flex items-center gap-1.5">{t('fngTitle')}<InfoTip text={t('tipFng')} /></div>
         <div className="flex items-baseline gap-2">
           <span className="text-3xl font-bold tnum" style={{ color }}>{v}</span>
           <span className="text-sm font-medium" style={{ color }}>{t(bandKey)}</span>
