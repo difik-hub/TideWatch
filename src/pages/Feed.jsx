@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState, useCallback, useDeferredValue } from 'rea
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import Nav from '../components/Nav'
 import CoinCard from '../components/CoinCard'
+import CoinRow from '../components/CoinRow'
 import Hero from '../components/Hero'
-import AdSlots from '../components/AdSlots'
+// AdSlots отключён: вертикальный лейаут (вернуть — раскомментировать здесь и в разметке)
+// import AdSlots from '../components/AdSlots'
 import BlobBackdrop from '../components/BlobBackdrop'
 import NowMoving from '../components/NowMoving'
-import FearGreed from '../components/FearGreed'
 import Icon from '../components/Icon'
 import { fetchMarkets, fetchGlobal, fetchRates, fetchSearch } from '../lib/api'
 import { subscribeLive } from '../lib/binanceLive'
@@ -52,6 +53,9 @@ export default function Feed() {
   const [global, setGlobal] = useState(null)
   const [rates, setRates] = useState(null)
   const [live, setLive] = useState(() => new Map()) // SYMBOL -> цена USD (Binance WS)
+  // Вид ленты: compact (таблица, по умолчанию — сканируется глазом) | cards (подробно)
+  const [viewMode, setViewMode] = useState(() => localStorage.getItem('tidewatch:viewMode') || 'compact')
+  const switchView = (m) => { setViewMode(m); localStorage.setItem('tidewatch:viewMode', m) }
 
   // Реалтайм-цены: один общий вебсокет, батчи раз в 3 сек
   useEffect(() => {
@@ -205,7 +209,9 @@ export default function Feed() {
         </div>
       </Nav>
 
-      <AdSlots />
+      {/* Боковые баннеры отключены: вертикальный CMC-лейаут во всю ширину.
+          Вернуть — раскомментировать. Реклама переедет в горизонтальный слот. */}
+      {/* <AdSlots /> */}
 
       {showHero && (
         <section className="relative overflow-hidden border-b border-line">
@@ -218,13 +224,13 @@ export default function Feed() {
             className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)]"
           />
           <BlobBackdrop />
-          <div className="relative max-w-2xl mx-auto px-4 pt-6 pb-2">
+          <div className="relative max-w-5xl mx-auto px-4 pt-6 pb-2">
             <Hero global={global} coins={coins} />
           </div>
         </section>
       )}
 
-      <main className="max-w-2xl mx-auto px-4 py-5">
+      <main className="max-w-5xl mx-auto px-4 py-5">
         {view !== 'cap' && (
           <div className="flex justify-center mb-4">
             <button
@@ -265,7 +271,7 @@ export default function Feed() {
           <div className="mb-4 text-center text-xs text-soft">{t('staleNotice')}</div>
         )}
 
-        {showHero && coins.length > 0 && <div className="mb-6"><FearGreed /></div>}
+        {/* FNG ужат в мини-метрику внутри панели Hero */}
         {showHero && coins.length > 0 && <NowMoving coins={coins} />}
 
         {/* Быстрый доступ к функциям — на виду, а не спрятаны в меню */}
@@ -296,6 +302,23 @@ export default function Feed() {
               {onlyFav ? t('favorites') : view === 'gainers' ? t('topGainers') : view === 'losers' ? t('topLosers') : t('allCoins')}
               <span className="text-faint text-xs font-normal tnum">{visible.length}</span>
             </h2>
+            {/* Переключатель вида: таблица (компакт) / карточки (подробно) */}
+            <div className="flex rounded-lg border border-line overflow-hidden">
+              <button
+                onClick={() => switchView('compact')}
+                aria-label="list"
+                className={`px-2.5 py-1.5 ${viewMode === 'compact' ? 'bg-brand-soft text-brand-ink' : 'bg-panel text-faint hover:text-soft'}`}
+              >
+                <Icon name="bars" size={14} />
+              </button>
+              <button
+                onClick={() => switchView('cards')}
+                aria-label="cards"
+                className={`px-2.5 py-1.5 ${viewMode === 'cards' ? 'bg-brand-soft text-brand-ink' : 'bg-panel text-faint hover:text-soft'}`}
+              >
+                <Icon name="grid" size={14} />
+              </button>
+            </div>
           </div>
         )}
 
@@ -311,20 +334,47 @@ export default function Feed() {
           </div>
         )}
 
-        <div className="grid gap-3">
-          {visible.map((coin, i) => (
-            <CoinCard
-              key={coin.id}
-              coin={coin}
-              index={i}
-              isFav={favs.has(coin.id)}
-              onToggleFav={onToggleFav}
-              rates={rates}
-              marketMedian={marketMedian}
-              livePrice={live.get(coin.symbol?.toUpperCase()) ?? null}
-            />
-          ))}
-        </div>
+        {viewMode === 'compact' ? (
+          /* Табличный вид: вся инфа сканируется глазом, как у больших трекеров */
+          <div className="card rounded-2xl overflow-hidden">
+            <div className="hidden sm:grid items-center gap-2 px-3 py-2 border-b border-line text-[10px] uppercase tracking-wide text-faint
+                            sm:grid-cols-[36px_minmax(0,1.4fr)_auto_76px_76px_90px_96px_34px]">
+              <span>#</span>
+              <span>{t('convPickCoin')}</span>
+              <span className="text-right justify-self-end">$</span>
+              <span className="text-right">{t('lblDay')}</span>
+              <span className="text-right">{t('lblWeek')}</span>
+              <span className="text-right">{t('lblCap')}</span>
+              <span>7d</span>
+              <span />
+            </div>
+            {visible.map((coin) => (
+              <CoinRow
+                key={coin.id}
+                coin={coin}
+                isFav={favs.has(coin.id)}
+                onToggleFav={onToggleFav}
+                rates={rates}
+                livePrice={live.get(coin.symbol?.toUpperCase()) ?? null}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {visible.map((coin, i) => (
+              <CoinCard
+                key={coin.id}
+                coin={coin}
+                index={i}
+                isFav={favs.has(coin.id)}
+                onToggleFav={onToggleFav}
+                rates={rates}
+                marketMedian={marketMedian}
+                livePrice={live.get(coin.symbol?.toUpperCase()) ?? null}
+              />
+            ))}
+          </div>
+        )}
 
         <footer className="text-center py-10">
           <button

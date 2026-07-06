@@ -3,8 +3,8 @@ import { fetchFearGreed } from '../lib/api'
 import { useT } from '../i18n/useT'
 import InfoTip from './InfoTip'
 
-// Полукруглый gauge индекса страха и жадности (0–100).
-export default function FearGreed() {
+// Индекс страха и жадности (0–100). compact — мини-плитка для панели метрик.
+export default function FearGreed({ compact = false }) {
   const t = useT()
   const [fng, setFng] = useState(null)
 
@@ -19,6 +19,19 @@ export default function FearGreed() {
   const v = Math.max(0, Math.min(100, fng.value))
   const bandKey = v < 25 ? 'fngExtremeFear' : v < 45 ? 'fngFear' : v < 55 ? 'fngNeutral' : v < 75 ? 'fngGreed' : 'fngExtremeGreed'
   const color = v < 25 ? '#f6465d' : v < 45 ? '#f0913a' : v < 55 ? '#e6c84f' : v < 75 ? '#7cc86a' : '#16c784'
+
+  // Компактный вариант — мини-плитка в общую панель метрик Hero
+  if (compact) {
+    return (
+      <div className="px-4 py-3.5">
+        <div className="text-[11px] uppercase tracking-wide text-faint flex items-center gap-1.5">
+          {t('fngTitle')}<InfoTip text={t('tipFng')} />
+        </div>
+        <div className="text-lg font-semibold mt-1 tnum" style={{ color }}>{v}</div>
+        <div className="text-[11px] mt-0.5" style={{ color }}>{t(bandKey)}</div>
+      </div>
+    )
+  }
 
   // Геометрия полукруга
   const cx = 100, cy = 100, r = 78

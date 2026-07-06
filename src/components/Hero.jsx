@@ -4,6 +4,7 @@ import { formatBig, formatPct, trendOf } from '../lib/format'
 import { buildMarketSummary } from '../lib/marketSummary'
 import Icon, { TrendArrow } from './Icon'
 import InfoTip from './InfoTip'
+import FearGreed from './FearGreed'
 
 const trendColor = { rise: 'text-up', fall: 'text-down', flat: 'text-soft' }
 
@@ -82,7 +83,7 @@ export default function Hero({ global, coins }) {
       </div>
 
       {/* Сводка рынка — единая панель с внутренними разделителями */}
-      <div className="card rounded-2xl grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-line overflow-hidden">
+      <div className="card rounded-2xl grid grid-cols-2 sm:grid-cols-5 divide-x divide-y sm:divide-y-0 divide-line overflow-hidden">
         <Metric
           label={t('mMarketCap')}
           tip={t('tipMcap')}
@@ -109,6 +110,8 @@ export default function Hero({ global, coins }) {
           value={activeCoins ? activeCoins.toLocaleString('en-US') : '—'}
           sub={t('sOnMarket')}
         />
+        {/* Страх и жадность — компактно, в общем ряду (не отдельным блоком) */}
+        <FearGreed compact />
       </div>
     </section>
   )
