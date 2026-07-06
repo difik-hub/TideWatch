@@ -8,6 +8,7 @@ import Hero from '../components/Hero'
 // import AdSlots from '../components/AdSlots'
 import BlobBackdrop from '../components/BlobBackdrop'
 import NowMoving from '../components/NowMoving'
+import Onboarding from '../components/Onboarding'
 import Icon from '../components/Icon'
 import { fetchMarkets, fetchGlobal, fetchRates, fetchSearch } from '../lib/api'
 import { subscribeLive } from '../lib/binanceLive'
@@ -272,6 +273,7 @@ export default function Feed() {
         )}
 
         {/* FNG ужат в мини-метрику внутри панели Hero */}
+        {showHero && coins.length > 0 && <Onboarding />}
         {showHero && coins.length > 0 && <NowMoving coins={coins} />}
 
         {/* Быстрый доступ к функциям — на виду, а не спрятаны в меню */}

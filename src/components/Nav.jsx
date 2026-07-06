@@ -5,6 +5,7 @@ import Icon from './Icon'
 import { useT } from '../i18n/useT'
 import { useUI } from '../store/ui'
 import { countActiveAlerts } from '../lib/alerts'
+import { isTMA } from '../lib/telegram'
 
 // Шапка на основе CardNav: плавающая капсула с раскрывающимся меню.
 // children — строка под капсулой (на ленте это поиск).
@@ -95,7 +96,7 @@ export default function Nav({ children }) {
       bg: 'color-mix(in oklab, var(--ink) 7%, transparent)',
       fg: 'var(--ink)',
       links: [
-        ...(installable ? [{ label: t('installApp'), onClick: installApp }] : []),
+        ...(installable && !isTMA() ? [{ label: t('installApp'), onClick: installApp }] : []),
         { label: t('aboutData'), onClick: () => window.open('https://www.coingecko.com', '_blank') },
         { label: t('aboutDisc'), onClick: () => {} },
         { label: t('aboutApp'), onClick: () => {} },

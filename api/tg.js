@@ -6,7 +6,7 @@
 import { buildMarketSummary } from '../src/lib/marketSummary.js'
 
 const CG = 'https://api.coingecko.com/api/v3'
-const SITE = 'https://tidewatch-psi.vercel.app'
+const SITE = 'https://tidewatchi.vercel.app'
 
 async function tg(method, token, payload) {
   await fetch(`https://api.telegram.org/bot${token}/${method}`, {
@@ -16,8 +16,9 @@ async function tg(method, token, payload) {
   })
 }
 
+// web_app — сайт открывается ВНУТРИ Telegram (Mini App), а не во внешнем браузере
 const siteButton = {
-  inline_keyboard: [[{ text: '🌊 Открыть TideWatch', url: SITE }]],
+  inline_keyboard: [[{ text: '🌊 Открыть TideWatch', web_app: { url: SITE } }]],
 }
 
 async function cmdMarket() {

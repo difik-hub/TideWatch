@@ -11,6 +11,7 @@ import { buildSummary } from '../lib/summary'
 import { formatPrice, formatBig, formatNum, formatPct, trendOf, convertPrice } from '../lib/format'
 import { getFavorites, toggleFavorite } from '../lib/favorites'
 import { logActivity } from '../lib/activity'
+import { EXCHANGES, buyUrl } from '../config/exchanges'
 import { shareCoinCard } from '../lib/shareCard'
 import { useSettings } from '../store/settings'
 import { useUI } from '../store/ui'
@@ -366,6 +367,26 @@ export default function CoinPage() {
             </div>
           </section>
         )}
+
+        {/* Где купить — ссылки на биржи (партнёрские хвосты в config/exchanges.js) */}
+        <section className="mt-7">
+          <SectionTitle icon="coins">{t('buyTitle')}</SectionTitle>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            {EXCHANGES.map((ex) => (
+              <a
+                key={ex.name}
+                href={buyUrl(ex, coin.symbol)}
+                target="_blank"
+                rel="noopener noreferrer sponsored"
+                className="card-link flex items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-medium"
+              >
+                {ex.name}
+                <Icon name="arrowUpRight" size={14} className="text-faint" />
+              </a>
+            ))}
+          </div>
+          <p className="text-[11px] text-faint mt-2">{t('buyDisclaimer')}</p>
+        </section>
 
         {others.length > 0 && (
           <section className="mt-8">

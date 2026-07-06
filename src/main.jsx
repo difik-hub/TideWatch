@@ -4,7 +4,12 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import { SettingsProvider } from './store/settings'
 import { AuthProvider } from './store/auth'
+import { initTMA } from './lib/telegram'
+import { Analytics } from '@vercel/analytics/react'
 import './index.css'
+
+// Telegram Mini App: если открыты внутри Telegram — раскрыть и применить тему
+initTMA()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -15,6 +20,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </BrowserRouter>
       </AuthProvider>
     </SettingsProvider>
+    <Analytics />
   </React.StrictMode>,
 )
 
