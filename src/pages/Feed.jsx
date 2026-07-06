@@ -9,6 +9,7 @@ import NowMoving from '../components/NowMoving'
 import FearGreed from '../components/FearGreed'
 import Icon from '../components/Icon'
 import { fetchMarkets, fetchGlobal, fetchRates, fetchSearch } from '../lib/api'
+import { subscribeLive } from '../lib/binanceLive'
 import { getFavorites, toggleFavorite } from '../lib/favorites'
 import { checkAlerts, notify, playAlertSound } from '../lib/alerts'
 import { convertPrice } from '../lib/format'
@@ -50,6 +51,18 @@ export default function Feed() {
   const [updatedAt, setUpdatedAt] = useState(null)
   const [global, setGlobal] = useState(null)
   const [rates, setRates] = useState(null)
+  const [live, setLive] = useState(() => new Map()) // SYMBOL -> цена USD (Binance WS)
+
+  // Реалтайм-цены: один общий вебсокет, батчи раз в 3 сек
+  useEffect(() => {
+    return subscribeLive((batch) => {
+      setLive((prev) => {
+        const next = new Map(prev)
+        for (const [sym, price] of batch) next.set(sym, price)
+        return next
+      })
+    })
+  }, [])
 
   const load = useCallback(async () => {
     try {
@@ -255,6 +268,27 @@ export default function Feed() {
         {showHero && coins.length > 0 && <div className="mb-6"><FearGreed /></div>}
         {showHero && coins.length > 0 && <NowMoving coins={coins} />}
 
+        {/* Быстрый доступ к функциям — на виду, а не спрятаны в меню */}
+        {coins.length > 0 && !query && (
+          <div className="flex gap-2 overflow-x-auto pb-2 mb-3 -mx-4 px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <button onClick={() => ui.openPortfolio()} className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-panel border border-line text-[13px] font-medium text-ink hover:border-brand/50 hover:text-brand-ink transition">
+              <Icon name="coins" size={15} className="text-brand-ink" /> {t('portfolioTitle')}
+            </button>
+            <button onClick={() => ui.openConverter()} className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-panel border border-line text-[13px] font-medium text-ink hover:border-brand/50 hover:text-brand-ink transition">
+              <Icon name="swap" size={15} className="text-brand-ink" /> {t('convTitle')}
+            </button>
+            <button onClick={() => navigate('/heatmap')} className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-panel border border-line text-[13px] font-medium text-ink hover:border-brand/50 hover:text-brand-ink transition">
+              <Icon name="grid" size={15} className="text-brand-ink" /> {t('heatmapTitle')}
+            </button>
+            <button onClick={() => navigate('/compare')} className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-panel border border-line text-[13px] font-medium text-ink hover:border-brand/50 hover:text-brand-ink transition">
+              <Icon name="compare" size={15} className="text-brand-ink" /> {t('toolCompare')}
+            </button>
+            <button onClick={() => ui.openAlerts()} className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-panel border border-line text-[13px] font-medium text-ink hover:border-brand/50 hover:text-brand-ink transition">
+              <Icon name="bell" size={15} className="text-brand-ink" /> {t('myAlerts')}
+            </button>
+          </div>
+        )}
+
         {/* Заголовок ленты — даёт структуру вместо разрозненных элементов */}
         {coins.length > 0 && (
           <div className="flex items-center justify-between mb-3">
@@ -287,6 +321,7 @@ export default function Feed() {
               onToggleFav={onToggleFav}
               rates={rates}
               marketMedian={marketMedian}
+              livePrice={live.get(coin.symbol?.toUpperCase()) ?? null}
             />
           ))}
         </div>

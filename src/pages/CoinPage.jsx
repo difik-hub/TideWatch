@@ -5,9 +5,10 @@ import PriceChart from '../components/PriceChart'
 import AnimatedNumber from '../components/AnimatedNumber'
 import InfoTip from '../components/InfoTip'
 import Icon, { TrendArrow } from '../components/Icon'
-import { fetchCoin, fetchMarketChart, fetchMarkets } from '../lib/api'
+import { fetchCoin, fetchMarketChart, fetchMarkets, fetchRates } from '../lib/api'
+import { subscribeLive } from '../lib/binanceLive'
 import { buildSummary } from '../lib/summary'
-import { formatPrice, formatBig, formatNum, formatPct, trendOf } from '../lib/format'
+import { formatPrice, formatBig, formatNum, formatPct, trendOf, convertPrice } from '../lib/format'
 import { getFavorites, toggleFavorite } from '../lib/favorites'
 import { logActivity } from '../lib/activity'
 import { shareCoinCard } from '../lib/shareCard'
@@ -97,8 +98,21 @@ export default function CoinPage() {
   const [favs, setFavs] = useState(() => getFavorites())
   const [showFullDesc, setShowFullDesc] = useState(false)
   const [reloadKey, setReloadKey] = useState(0)
+  const [liveUsd, setLiveUsd] = useState(null)
+  const [fx, setFx] = useState(null)
 
   const isFav = favs.has(id)
+
+  // Реалтайм-цена этой монеты (Binance WS, USD) + курсы для конвертации
+  useEffect(() => {
+    fetchRates().then(setFx).catch(() => {})
+    const sym = coin?.symbol?.toUpperCase()
+    if (!sym) return
+    return subscribeLive((batch) => {
+      const p = batch.get(sym)
+      if (p != null) setLiveUsd(p)
+    })
+  }, [coin?.symbol])
 
   useEffect(() => {
     let alive = true
@@ -226,7 +240,11 @@ export default function CoinPage() {
     )
   }
 
-  const price = md?.current_price?.[currency]
+  // live-цена приоритетнее снапшота (конвертируем USD → валюта юзера)
+  const snapPrice = md?.current_price?.[currency]
+  const price = liveUsd != null
+    ? (currency === 'usd' ? liveUsd : (fx ? convertPrice(liveUsd, 'usd', currency, fx) : snapPrice))
+    : snapPrice
   const d24 = md?.price_change_percentage_24h_in_currency?.[currency]
   const t24 = trendOf(d24)
   const up = (d24 ?? 0) >= 0

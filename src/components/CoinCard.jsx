@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { Link } from 'react-router-dom'
 import Sparkline from './Sparkline'
-import AnimatedNumber from './AnimatedNumber'
+import LivePrice from './LivePrice'
 import Icon, { TrendArrow } from './Icon'
 import { useSettings } from '../store/settings'
 import { useUI } from '../store/ui'
@@ -43,7 +43,7 @@ function MarketBadge({ d24, median, t }) {
   )
 }
 
-function CoinCard({ coin, isFav, onToggleFav, index = 0, rates, marketMedian }) {
+function CoinCard({ coin, isFav, onToggleFav, index = 0, rates, marketMedian, livePrice = null }) {
   const { currency, lang, sparklines } = useSettings()
   const ui = useUI()
   const t = useT()
@@ -61,10 +61,18 @@ function CoinCard({ coin, isFav, onToggleFav, index = 0, rates, marketMedian }) 
     else { try { await navigator.clipboard.writeText(url) } catch { /* нет clipboard */ } }
   }
 
+  // Live-цена с Binance (в USD) имеет приоритет над снапшотом CoinGecko.
+  // basePrice — в валюте юзера: live конвертируем из USD, снапшот уже в валюте.
+  const basePrice = livePrice != null && rates
+    ? convertPrice(livePrice, 'usd', currency, rates)
+    : livePrice != null && currency === 'usd'
+      ? livePrice
+      : coin.current_price
+
   // Цена в трёх валютах (через курсы). Без курсов — только выбранная валюта.
   const prices = rates
-    ? ALL_CUR.map((cur) => ({ cur, value: convertPrice(coin.current_price, currency, cur, rates) }))
-    : [{ cur: currency, value: coin.current_price }]
+    ? ALL_CUR.map((cur) => ({ cur, value: convertPrice(basePrice, currency, cur, rates) }))
+    : [{ cur: currency, value: basePrice }]
 
   return (
     <Link
@@ -124,15 +132,14 @@ function CoinCard({ coin, isFav, onToggleFav, index = 0, rates, marketMedian }) 
         {prices.map((p, i) => (
           <div key={p.cur}>
             <div className="text-[10px] uppercase tracking-wide text-faint">{p.cur}</div>
-            {i === 0 ? (
-              <AnimatedNumber
-                value={p.value}
-                format={(n) => formatPrice(n, p.cur)}
-                className="text-[16px] font-semibold tnum tracking-tight leading-tight inline-block"
-              />
-            ) : (
-              <div className="text-[16px] font-semibold tnum tracking-tight leading-tight">{formatPrice(p.value, p.cur)}</div>
-            )}
+            {/* LivePrice: CSS-вспышка без RAF — сотня карточек не тормозит */}
+            <LivePrice
+              value={p.value}
+              format={(n) => formatPrice(n, p.cur)}
+              className={i === 0
+                ? 'text-[16px] font-semibold tnum tracking-tight leading-tight inline-block'
+                : 'text-[16px] font-semibold tnum tracking-tight leading-tight inline-block text-ink'}
+            />
           </div>
         ))}
       </div>
