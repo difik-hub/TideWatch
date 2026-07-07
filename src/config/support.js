@@ -1,6 +1,6 @@
 // Поддержка автора через TON. Впиши свой TON-адрес (кошелёк Tonkeeper и т.п.).
 // Пока пусто — кнопка «Поддержать автора» не показывается.
-export const TON_ADDRESS = '' // напр. 'UQAbc...xyz'
+export const TON_ADDRESS = 'UQCWyO-c3hIWr95zmTW8ztJHbAPBqGcyzS_VhhkWvwR7fSJw'
 
 // Ссылка на перевод в кошелёк (Tonkeeper universal link — открывает кошелёк/Telegram)
 export function tonDonateUrl(amountTon) {

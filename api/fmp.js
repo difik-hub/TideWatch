@@ -53,14 +53,17 @@ export default async function handler(req, res) {
         const rows = await Promise.all(chunk.map((s) => fmp('quote', { symbol: s }, key).catch(() => null)))
         for (const r of rows) if (Array.isArray(r) && r[0]?.price != null) out.push(r[0])
       }
-      res.setHeader('Cache-Control', `s-maxage=${sMaxQuote}, stale-while-revalidate=3600`)
+      // Пусто (лимит/сбой FMP) — кешируем КОРОТКО, иначе пустая лента залипнет на часы
+      const sMax = out.length ? sMaxQuote : 60
+      res.setHeader('Cache-Control', `s-maxage=${sMax}, stale-while-revalidate=3600`)
       res.status(200).json({ marketOpen: open, quotes: out })
       return
     }
 
     if (p === 'quote') {
       const data = await fmp('quote', { symbol: u.searchParams.get('symbol') }, key)
-      res.setHeader('Cache-Control', `s-maxage=${sMaxQuote}, stale-while-revalidate=3600`)
+      const okQuote = Array.isArray(data) && data[0]?.price != null
+      res.setHeader('Cache-Control', `s-maxage=${okQuote ? sMaxQuote : 60}, stale-while-revalidate=3600`)
       res.status(200).json(data)
       return
     }
