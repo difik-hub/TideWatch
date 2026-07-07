@@ -39,7 +39,7 @@ export default async function handler(req, res) {
   if (!ALLOWED.has(p)) { res.status(400).json({ error: 'path not allowed' }); return }
 
   const open = marketOpen()
-  const sMaxQuote = open ? 3600 : 21600 // 1ч в сессию, 6ч когда закрыт
+  const sMaxQuote = open ? 7200 : 43200 // 2ч в сессию, 12ч когда закрыт (лимит 250/день)
   const long = 86400 // профиль/лого — сутки
 
   try {

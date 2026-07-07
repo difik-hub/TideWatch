@@ -293,7 +293,7 @@ export default function Feed() {
         {/* Чипы-фильтры категорий акций */}
         {tab === 'stocks' && coins.length > 0 && !query && (
           <div className="flex gap-2 overflow-x-auto pb-2 mb-3 -mx-4 px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {[['all', t('catAll')], ['crypto', t('catCrypto')], ['tech', t('catTech')], ['meme', t('catMeme')], ['etf', t('catEtf')]].map(([k, label]) => (
+            {[['all', t('catAll')], ['crypto', t('catCrypto')], ['tech', t('catTech')], ['finance', t('catFinance')]].map(([k, label]) => (
               <button
                 key={k}
                 onClick={() => setStCat(k)}

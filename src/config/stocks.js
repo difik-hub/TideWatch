@@ -1,14 +1,16 @@
-// Кураторский список акций для вкладки «Акции» (~24, категории для фильтр-чипов).
-// ⚠️ Бесплатный FMP: батч платный, 250 запросов/день. Лента собирается серверным
-// fan-out'ом (api/fmp.js) с агрессивным кешем. Больше тикеров / реалтайм —
-// только платный ключ FMP; тогда просто добавь сюда символы.
-// cat: crypto (крипто-акции — мостик) | tech (AI/мегакапы) | meme | etf
+// Кураторский список акций для вкладки «Акции» (~22, категории для фильтр-чипов).
+// ⚠️ Бесплатный FMP: батч платный + покрыт лишь ЧАСТЬ символов (MSTR, GME, QQQ,
+// ETF и мн.др. — премиум), лимит 250 запросов/день. Все тикеры ниже проверены
+// на free-покрытие. Лента собирается серверным fan-out'ом (api/fmp.js) с кешем.
+// Больше тикеров / реалтайм / MSTR·ETF — только платный ключ FMP.
+// cat: crypto (крипто-адаженс — мостик) | tech (AI/мегакапы) | finance (голубые фишки)
 export const STOCKS = [
   { symbol: 'COIN', name: 'Coinbase', cat: 'crypto' },
-  { symbol: 'MSTR', name: 'MicroStrategy', cat: 'crypto' },
-  { symbol: 'MARA', name: 'Marathon Digital', cat: 'crypto' },
-  { symbol: 'RIOT', name: 'Riot Platforms', cat: 'crypto' },
   { symbol: 'HOOD', name: 'Robinhood', cat: 'crypto' },
+  { symbol: 'RIOT', name: 'Riot Platforms', cat: 'crypto' },
+  { symbol: 'SQ', name: 'Block', cat: 'crypto' },
+  { symbol: 'PYPL', name: 'PayPal', cat: 'crypto' },
+  { symbol: 'SOFI', name: 'SoFi', cat: 'crypto' },
   { symbol: 'NVDA', name: 'NVIDIA', cat: 'tech' },
   { symbol: 'AAPL', name: 'Apple', cat: 'tech' },
   { symbol: 'MSFT', name: 'Microsoft', cat: 'tech' },
@@ -19,19 +21,16 @@ export const STOCKS = [
   { symbol: 'AMD', name: 'AMD', cat: 'tech' },
   { symbol: 'PLTR', name: 'Palantir', cat: 'tech' },
   { symbol: 'NFLX', name: 'Netflix', cat: 'tech' },
-  { symbol: 'INTC', name: 'Intel', cat: 'tech' },
   { symbol: 'UBER', name: 'Uber', cat: 'tech' },
-  { symbol: 'DIS', name: 'Disney', cat: 'tech' },
-  { symbol: 'GME', name: 'GameStop', cat: 'meme' },
-  { symbol: 'AMC', name: 'AMC Entertainment', cat: 'meme' },
-  { symbol: 'SPY', name: 'S&P 500 ETF', cat: 'etf' },
-  { symbol: 'QQQ', name: 'Nasdaq 100 ETF', cat: 'etf' },
-  { symbol: 'GLD', name: 'Gold ETF', cat: 'etf' },
-  { symbol: 'SLV', name: 'Silver ETF', cat: 'etf' },
+  { symbol: 'JPM', name: 'JPMorgan', cat: 'finance' },
+  { symbol: 'V', name: 'Visa', cat: 'finance' },
+  { symbol: 'BAC', name: 'Bank of America', cat: 'finance' },
+  { symbol: 'WMT', name: 'Walmart', cat: 'finance' },
+  { symbol: 'DIS', name: 'Disney', cat: 'finance' },
 ]
 
 export const STOCK_SYMBOLS = STOCKS.map((s) => s.symbol)
-export const STOCK_CATS = ['crypto', 'tech', 'meme', 'etf']
+export const STOCK_CATS = ['crypto', 'tech', 'finance']
 
 export function stockName(symbol) {
   return STOCKS.find((s) => s.symbol === symbol)?.name || symbol
