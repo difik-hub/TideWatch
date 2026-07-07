@@ -33,8 +33,9 @@ const field = (block, tag) => {
 // boilerplate и обрезаем до N символов по границе слова.
 function summarize(block, max = 400) {
   let s = field(block, 'description') || field(block, 'content:encoded') || ''
-  s = s.replace(/The post .*? appeared first on .*/i, '')
-       .replace(/Read more:.*/i, '')
+  s = s.replace(/\s*(This|The)\s+post\b[\s\S]*/i, '')  // «This/The post … appeared first on …»
+       .replace(/\s*Read more:?[\s\S]*/i, '')
+       .replace(/\s*Continue reading[\s\S]*/i, '')
        .replace(/\s+/g, ' ')
        .trim()
   if (s.length <= max) return s
