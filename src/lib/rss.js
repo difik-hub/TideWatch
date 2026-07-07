@@ -10,9 +10,19 @@ export const FEEDS = [
 const strip = (s) => (s || '')
   .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
   .replace(/<[^>]+>/g, '')
-  .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-  .replace(/&#38;/g, '&').replace(/&#8217;/g, '’').replace(/&quot;/g, '"').replace(/&nbsp;/g, ' ')
+  .replace(/&#x([0-9a-fA-F]+);/g, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+  .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
+  .replace(/&quot;/g, '"').replace(/&apos;/g, '’').replace(/&nbsp;/g, ' ')
+  .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
   .trim()
+
+// Убрать дублирующийся источник/заголовок в начале описания (паттерн Bitcoin Magazine)
+function cleanSummary(summary, title, source) {
+  let s = summary
+  if (source && s.startsWith(source)) s = s.slice(source.length).trim()
+  if (title && s.toLowerCase().startsWith(title.toLowerCase())) s = s.slice(title.length).trim()
+  return s.replace(/^[-–—:]\s*/, '').trim()
+}
 
 const field = (block, tag) => {
   const m = block.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`, 'i'))
@@ -47,16 +57,19 @@ async function parseFeed(feed) {
     if (!r.ok) return []
     const xml = await r.text()
     const items = xml.match(/<item[\s\S]*?<\/item>/gi) || []
-    return items.slice(0, 12).map((it) => ({
-      title: field(it, 'title'),
-      url: field(it, 'link') || (it.match(/<link[^>]*href="([^"]+)"/i)?.[1] || ''),
-      source_name: feed.source,
-      domain: feed.domain,
-      published_at: field(it, 'pubDate') || field(it, 'dc:date') || field(it, 'published'),
-      image: imageOf(it),
-      summary: summarize(it),
-      currencies: [],
-    })).filter((x) => x.title && x.url)
+    return items.slice(0, 12).map((it) => {
+      const title = field(it, 'title')
+      return {
+        title,
+        url: field(it, 'link') || (it.match(/<link[^>]*href="([^"]+)"/i)?.[1] || ''),
+        source_name: feed.source,
+        domain: feed.domain,
+        published_at: field(it, 'pubDate') || field(it, 'dc:date') || field(it, 'published'),
+        image: imageOf(it),
+        summary: cleanSummary(summarize(it), title, feed.source),
+        currencies: [],
+      }
+    }).filter((x) => x.title && x.url)
   } catch {
     return []
   }
