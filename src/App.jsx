@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Feed from './pages/Feed'
 import CoinPage from './pages/CoinPage'
+import StockPage from './pages/StockPage'
 import Compare from './pages/Compare'
 import Heatmap from './pages/Heatmap'
 import Settings from './components/Settings'
@@ -30,6 +31,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Feed />} />
         <Route path="/coin/:id" element={<CoinPage />} />
+        <Route path="/stock/:sym" element={<StockPage />} />
         <Route path="/compare" element={<Compare />} />
         <Route path="/heatmap" element={<Heatmap />} />
         <Route path="*" element={<Navigate to="/" replace />} />

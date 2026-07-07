@@ -5,6 +5,7 @@ import { useUI } from '../store/ui'
 import { useSettings } from '../store/settings'
 import { useT } from '../i18n/useT'
 import { fetchMarkets, fetchRates } from '../lib/api'
+import { fetchStocks } from '../lib/stocksApi'
 import { formatPrice, formatBig, formatPct, trendOf, convertPrice } from '../lib/format'
 import { getPortfolio, addHolding, removeHolding } from '../lib/portfolio'
 import { getActivity, logActivity, relativeTime } from '../lib/activity'
@@ -17,6 +18,7 @@ export default function Portfolio() {
   const [activity, setActivity] = useState([])
 
   const [coins, setCoins] = useState([])
+  const [stocks, setStocks] = useState([])
   const [rates, setRates] = useState(null)
   const [list, setList] = useState(() => getPortfolio())
   const [coinId, setCoinId] = useState('bitcoin')
@@ -28,10 +30,12 @@ export default function Portfolio() {
     setList(getPortfolio())
     setActivity(getActivity())
     fetchMarkets(Math.max(coinCount, 100), 1, currency).then(setCoins).catch(() => {})
+    fetchStocks().then(setStocks).catch(() => {})
     fetchRates().then(setRates).catch(() => {})
   }, [open, currency, coinCount])
 
-  const byId = useMemo(() => Object.fromEntries(coins.map((c) => [c.id, c])), [coins])
+  // Общая карта цен: крипта (в валюте юзера) + акции (в USD, помечены kind)
+  const byId = useMemo(() => Object.fromEntries([...coins, ...stocks].map((c) => [c.id, c])), [coins, stocks])
   const coin = byId[coinId] || coins[0]
 
   // priceUsd монеты (current_price в выбранной валюте → usd)
@@ -41,7 +45,8 @@ export default function Portfolio() {
   const rows = useMemo(() => {
     return list.map((h) => {
       const c = byId[h.coinId]
-      const priceUsd = c ? toUsd(c.current_price) : null
+      // Акции уже в USD, крипта — в валюте юзера (конвертируем в USD)
+      const priceUsd = c ? (c.kind === 'stock' ? c.current_price : toUsd(c.current_price)) : null
       const valueUsd = priceUsd != null ? priceUsd * h.amount : null
       const costUsd = h.buyPriceUsd != null ? h.buyPriceUsd * h.amount : null
       const plUsd = valueUsd != null && costUsd != null ? valueUsd - costUsd : null
@@ -70,6 +75,7 @@ export default function Portfolio() {
       coinId: coin.id,
       symbol: coin.symbol,
       image: coin.image,
+      kind: coin.kind === 'stock' ? 'stock' : 'crypto',
       amount: amt,
       buyPriceUsd: !isNaN(bp) && bp > 0 ? toUsd(bp) : null,
     }))
@@ -127,7 +133,9 @@ export default function Portfolio() {
             return (
               <div key={h.id} className="bg-panel2 border border-line rounded-xl px-3 py-2.5">
                 <div className="flex items-center gap-3">
-                  <img src={h.image} alt="" className="w-7 h-7 rounded-full" />
+                  {h.image
+                    ? <img src={h.image} alt="" className="w-7 h-7 rounded-full" />
+                    : <span className="grid place-items-center w-7 h-7 rounded-full shrink-0 bg-brand-soft text-brand-ink text-[9px] font-bold uppercase">{h.symbol?.slice(0, 2)}</span>}
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium">{h.symbol?.toUpperCase()} <span className="text-faint text-xs tnum">× {h.amount}</span></div>
                     {plPct != null && (

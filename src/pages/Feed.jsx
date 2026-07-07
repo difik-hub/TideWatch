@@ -11,6 +11,7 @@ import NowMoving from '../components/NowMoving'
 import Onboarding from '../components/Onboarding'
 import Icon from '../components/Icon'
 import { fetchMarkets, fetchGlobal, fetchRates, fetchSearch } from '../lib/api'
+import { fetchStocks } from '../lib/stocksApi'
 import { subscribeLive } from '../lib/binanceLive'
 import { getFavorites, toggleFavorite } from '../lib/favorites'
 import { checkAlerts, notify, playAlertSound } from '../lib/alerts'
@@ -43,6 +44,8 @@ export default function Feed() {
   const [searchResults, setSearchResults] = useState([])
   const [searchFocused, setSearchFocused] = useState(false)
   const view = searchParams.get('view') || 'cap' // cap | gainers | losers
+  const tab = searchParams.get('tab') === 'stocks' ? 'stocks' : 'crypto' // крипта | акции
+  const switchTab = (t) => setSearchParams(t === 'stocks' ? { tab: 'stocks' } : {})
 
   const [coins, setCoins] = useState([])
   const [loading, setLoading] = useState(true)
@@ -72,23 +75,37 @@ export default function Feed() {
   const load = useCallback(async () => {
     try {
       setError(null)
-      const data = await fetchMarkets(coinCount, 1, currency)
-      setCoins(data)
-      setUpdatedAt(new Date())
-      fetchGlobal().then(setGlobal).catch(() => {})
+      // Курсы валют нужны и крипте, и акциям (конвертация USD→валюта юзера)
       fetchRates().then(setRates).catch(() => {})
+      if (tab === 'stocks') {
+        const data = await fetchStocks()
+        setCoins(data)
+        setUpdatedAt(new Date())
+        if (!data.length) setError(t('stocksEmpty'))
+      } else {
+        const data = await fetchMarkets(coinCount, 1, currency)
+        setCoins(data)
+        setUpdatedAt(new Date())
+        fetchGlobal().then(setGlobal).catch(() => {})
+      }
     } catch (e) {
       setError(e.message)
     } finally {
       setLoading(false)
     }
-  }, [coinCount, currency])
+  }, [coinCount, currency, tab, t])
 
   // Перезагрузка при смене валюты/количества — без сброса в скелетоны,
   // старые карточки остаются на месте, пока подгружаются новые (плавно).
   useEffect(() => {
     load()
   }, [load])
+
+  // Смена вкладки (крипта↔акции) — чистим ленту и показываем скелетоны
+  useEffect(() => {
+    setCoins([])
+    setLoading(true)
+  }, [tab])
 
   // Авто-обновление по выбранному интервалу (0 = вручную)
   useEffect(() => {
@@ -99,9 +116,9 @@ export default function Feed() {
 
   const onToggleFav = useCallback((id) => setFavs(new Set(toggleFavorite(id))), [])
 
-  // Проверка алертов при каждом обновлении данных
+  // Проверка алертов при каждом обновлении данных (только крипта)
   useEffect(() => {
-    if (!coins.length || !rates) return
+    if (tab !== 'crypto' || !coins.length || !rates) return
     const priceUsd = {}
     for (const c of coins) {
       priceUsd[c.id] = convertPrice(c.current_price, currency, 'usd', rates)
@@ -114,20 +131,20 @@ export default function Feed() {
         notify(`${a.symbol?.toUpperCase()} ${a.direction === 'above' ? '↑' : '↓'}`, `${a.coinName}: ${a.targetDisplay} ${a.currency.toUpperCase()}`)
       }
     }
-  }, [coins, rates, currency])
+  }, [coins, rates, currency, tab])
 
   const dirLabel = view === 'gainers' ? t('topGainers') : view === 'losers' ? t('topLosers') : t('byCap')
 
   const deferredQuery = useDeferredValue(query)
 
-  // Поиск по всей базе CoinGecko (не только по загруженным монетам)
+  // Поиск по всей базе CoinGecko (только на вкладке крипты; акции ищем локально)
   useEffect(() => {
     const q = deferredQuery.trim()
-    if (q.length < 2) { setSearchResults([]); return }
+    if (tab !== 'crypto' || q.length < 2) { setSearchResults([]); return }
     let alive = true
     fetchSearch(q).then((r) => { if (alive) setSearchResults(r) }).catch(() => {})
     return () => { alive = false }
-  }, [deferredQuery])
+  }, [deferredQuery, tab])
 
   const visible = useMemo(() => {
     const q = deferredQuery.trim().toLowerCase()
@@ -162,7 +179,9 @@ export default function Feed() {
       }`
     : ''
 
-  const showHero = !query && !onlyFav && coins.length > 0
+  const showHero = tab === 'crypto' && !query && !onlyFav && coins.length > 0
+  // Рынок акций закрыт, если ни по одной акции нет открытой сессии
+  const stocksClosed = tab === 'stocks' && coins.length > 0 && coins.every((c) => !c.is_market_open)
 
   return (
     <div className="min-h-[100dvh] page">
@@ -232,6 +251,35 @@ export default function Feed() {
       )}
 
       <main className="max-w-5xl mx-auto px-4 py-5">
+        {/* Вкладки Крипта | Акции — два рынка на одном экране (ядро видения) */}
+        <div className="flex items-center justify-center gap-1 mb-4">
+          <div className="inline-flex rounded-xl border border-line bg-panel p-1">
+            <button
+              onClick={() => switchTab('crypto')}
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${tab === 'crypto' ? 'bg-brand-soft text-brand-ink' : 'text-soft hover:text-ink'}`}
+            >
+              {t('tabCrypto')}
+            </button>
+            <button
+              onClick={() => switchTab('stocks')}
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${tab === 'stocks' ? 'bg-brand-soft text-brand-ink' : 'text-soft hover:text-ink'}`}
+            >
+              {t('tabStocks')}
+            </button>
+          </div>
+        </div>
+
+        {/* Статус рынка акций + пояснение про задержку данных */}
+        {tab === 'stocks' && coins.length > 0 && (
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-4 text-xs">
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-medium ${stocksClosed ? 'bg-panel2 text-soft' : 'bg-up/10 text-up'}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${stocksClosed ? 'bg-faint' : 'bg-up animate-pulse'}`} />
+              {stocksClosed ? t('marketClosed') : t('marketOpen')}
+            </span>
+            <span className="text-faint">{t('stocksNote')}</span>
+          </div>
+        )}
+
         {view !== 'cap' && (
           <div className="flex justify-center mb-4">
             <button
@@ -301,7 +349,7 @@ export default function Feed() {
         {coins.length > 0 && (
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-[15px] font-semibold flex items-center gap-2">
-              {onlyFav ? t('favorites') : view === 'gainers' ? t('topGainers') : view === 'losers' ? t('topLosers') : t('allCoins')}
+              {onlyFav ? t('favorites') : view === 'gainers' ? t('topGainers') : view === 'losers' ? t('topLosers') : tab === 'stocks' ? t('tabStocks') : t('allCoins')}
               <span className="text-faint text-xs font-normal tnum">{visible.length}</span>
             </h2>
             {/* Переключатель вида: таблица (компакт) / карточки (подробно) */}

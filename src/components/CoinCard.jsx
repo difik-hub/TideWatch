@@ -56,18 +56,23 @@ function CoinCard({ coin, isFav, onToggleFav, index = 0, rates, marketMedian, li
 
   const shareCoin = async (e) => {
     e.preventDefault()
-    const url = `${window.location.origin}/coin/${coin.id}`
+    const url = `${window.location.origin}${coin.href ?? `/coin/${coin.id}`}`
     if (navigator.share) { try { await navigator.share({ title: coin.name, url }) } catch { /* отмена */ } }
     else { try { await navigator.clipboard.writeText(url) } catch { /* нет clipboard */ } }
   }
 
+  const isStock = coin.kind === 'stock'
+
   // Live-цена с Binance (в USD) имеет приоритет над снапшотом CoinGecko.
   // basePrice — в валюте юзера: live конвертируем из USD, снапшот уже в валюте.
-  const basePrice = livePrice != null && rates
-    ? convertPrice(livePrice, 'usd', currency, rates)
-    : livePrice != null && currency === 'usd'
-      ? livePrice
-      : coin.current_price
+  // Акции всегда в USD → конвертируем при другой валюте.
+  const basePrice = isStock
+    ? (currency === 'usd' || !rates ? coin.current_price : convertPrice(coin.current_price, 'usd', currency, rates))
+    : livePrice != null && rates
+      ? convertPrice(livePrice, 'usd', currency, rates)
+      : livePrice != null && currency === 'usd'
+        ? livePrice
+        : coin.current_price
 
   // Цена в трёх валютах (через курсы). Без курсов — только выбранная валюта.
   const prices = rates
@@ -76,12 +81,14 @@ function CoinCard({ coin, isFav, onToggleFav, index = 0, rates, marketMedian, li
 
   return (
     <Link
-      to={`/coin/${coin.id}`}
+      to={coin.href ?? `/coin/${coin.id}`}
       className="card-link rise-in group block rounded-xl p-4 overflow-hidden"
       style={{ animationDelay: `${Math.min(index * 24, 360)}ms` }}
     >
       <div className="flex items-center gap-3">
-        <img src={coin.image} alt={coin.name} className="w-9 h-9 rounded-full" loading="lazy" />
+        {coin.image
+          ? <img src={coin.image} alt={coin.name} className="w-9 h-9 rounded-full" loading="lazy" />
+          : <span className="grid place-items-center w-9 h-9 rounded-full shrink-0 bg-brand-soft text-brand-ink text-[11px] font-bold uppercase">{coin.symbol?.slice(0, 2)}</span>}
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
@@ -91,7 +98,8 @@ function CoinCard({ coin, isFav, onToggleFav, index = 0, rates, marketMedian, li
           </div>
           <div className="mt-1 flex items-center gap-2 flex-wrap">
             <MarketBadge d24={d24} median={marketMedian} t={t} />
-            <span className="text-soft text-[12px] first-letter:uppercase">{shortVibe(coin, lang)}</span>
+            {!isStock && <span className="text-soft text-[12px] first-letter:uppercase">{shortVibe(coin, lang)}</span>}
+            {isStock && coin.exchange && <span className="text-faint text-[11px]">{coin.exchange}</span>}
           </div>
         </div>
 

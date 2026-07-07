@@ -30,15 +30,19 @@ function CoinRow({ coin, isFav, onToggleFav, rates, livePrice = null }) {
   const spark = coin.sparkline_in_7d?.price
   const up = spark && spark.length > 1 ? spark[spark.length - 1] >= spark[0] : (d24 ?? 0) >= 0
 
-  const price = livePrice != null && rates
-    ? convertPrice(livePrice, 'usd', currency, rates)
-    : livePrice != null && currency === 'usd'
-      ? livePrice
-      : coin.current_price
+  // Акции всегда в USD → конвертируем при другой валюте. Крипта уже в нужной
+  // валюте (из API), а live-цена из Binance — в USD.
+  const price = coin.kind === 'stock'
+    ? (currency === 'usd' || !rates ? coin.current_price : convertPrice(coin.current_price, 'usd', currency, rates))
+    : livePrice != null && rates
+      ? convertPrice(livePrice, 'usd', currency, rates)
+      : livePrice != null && currency === 'usd'
+        ? livePrice
+        : coin.current_price
 
   return (
     <Link
-      to={`/coin/${coin.id}`}
+      to={coin.href ?? `/coin/${coin.id}`}
       className="grid items-center gap-2 px-3 py-2.5 border-b border-line last:border-0 hover:bg-panel2/60 transition
                  grid-cols-[28px_minmax(0,1fr)_auto_72px_34px]
                  sm:grid-cols-[36px_minmax(0,1.4fr)_auto_76px_76px_90px_96px_34px]"
@@ -48,7 +52,9 @@ function CoinRow({ coin, isFav, onToggleFav, rates, livePrice = null }) {
 
       {/* Монета */}
       <span className="flex items-center gap-2 min-w-0">
-        <img src={coin.image} alt="" className="w-6 h-6 rounded-full shrink-0" loading="lazy" />
+        {coin.image
+          ? <img src={coin.image} alt="" className="w-6 h-6 rounded-full shrink-0" loading="lazy" />
+          : <span className="grid place-items-center w-6 h-6 rounded-full shrink-0 bg-brand-soft text-brand-ink text-[9px] font-bold uppercase">{coin.symbol?.slice(0, 2)}</span>}
         <span className="min-w-0">
           <span className="block text-[13px] font-medium truncate leading-tight">{coin.name}</span>
           <span className="block text-[10px] text-faint uppercase tnum leading-tight">{coin.symbol}</span>
