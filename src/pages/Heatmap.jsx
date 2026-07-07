@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Treemap, ResponsiveContainer } from 'recharts'
 import Nav from '../components/Nav'
 import Icon from '../components/Icon'
 import { fetchMarkets } from '../lib/api'
+import { fetchStocks } from '../lib/stocksApi'
 import { useSettings } from '../store/settings'
 import { useT } from '../i18n/useT'
 import { formatPct } from '../lib/format'
@@ -27,7 +28,7 @@ function tileColor(change) {
 
 function makeContent(navigate, hoveredId, setHoveredId) {
   return function TreeNode(props) {
-    const { x, y, width, height, symbol, change, id } = props
+    const { x, y, width, height, symbol, change, id, href } = props
     if (width <= 0 || height <= 0) return null
     const pad = 3
     const w = Math.max(width - pad, 0)
@@ -40,7 +41,7 @@ function makeContent(navigate, hoveredId, setHoveredId) {
     return (
       <g
         style={{ cursor: 'pointer' }}
-        onClick={() => id && navigate(`/coin/${id}`)}
+        onClick={() => id && navigate(href || `/coin/${id}`)}
         onMouseEnter={() => id && setHoveredId(id)}
         onMouseLeave={() => setHoveredId(null)}
       >
@@ -78,12 +79,16 @@ export default function Heatmap() {
   const { currency, coinCount } = useSettings()
   const t = useT()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const tab = searchParams.get('tab') === 'stocks' ? 'stocks' : 'crypto'
   const [coins, setCoins] = useState([])
   const [hoveredId, setHoveredId] = useState(null)
 
   useEffect(() => {
-    fetchMarkets(Math.max(coinCount, 50), 1, currency).then(setCoins).catch(() => {})
-  }, [currency, coinCount])
+    setCoins([])
+    if (tab === 'stocks') fetchStocks().then(setCoins).catch(() => {})
+    else fetchMarkets(Math.max(coinCount, 50), 1, currency).then(setCoins).catch(() => {})
+  }, [currency, coinCount, tab])
 
   // sqrt-демпфирование размера, чтобы BTC не занимал пол-карты → плитки сбалансированы
   const data = useMemo(
@@ -91,6 +96,7 @@ export default function Heatmap() {
       coins.slice(0, 40).map((c) => ({
         symbol: c.symbol?.toUpperCase(),
         id: c.id,
+        href: c.href,
         size: Math.sqrt(Math.max(c.market_cap || 1, 1)),
         change: c.price_change_percentage_24h_in_currency ?? c.price_change_percentage_24h,
       })),
@@ -112,11 +118,24 @@ export default function Heatmap() {
             </h1>
             <p className="text-soft text-sm">{t('heatmapHint')}</p>
           </div>
-          {/* Легенда цветовой шкалы */}
-          <div className="flex items-center gap-2 text-[11px] text-soft">
-            <span className="text-down">−</span>
-            <span className="h-2.5 w-40 rounded-full" style={{ background: 'linear-gradient(90deg, #f6465d, #4a2330, #2f3945, #1e4a3b, #16c784)' }} />
-            <span className="text-up">+</span>
+          <div className="flex items-center gap-4">
+            {/* Вкладки Крипта | Акции */}
+            <div className="inline-flex rounded-xl border border-line bg-panel p-1">
+              <button
+                onClick={() => setSearchParams({})}
+                className={`px-3.5 py-1 rounded-lg text-[13px] font-medium transition ${tab === 'crypto' ? 'bg-brand-soft text-brand-ink' : 'text-soft hover:text-ink'}`}
+              >{t('tabCrypto')}</button>
+              <button
+                onClick={() => setSearchParams({ tab: 'stocks' })}
+                className={`px-3.5 py-1 rounded-lg text-[13px] font-medium transition ${tab === 'stocks' ? 'bg-brand-soft text-brand-ink' : 'text-soft hover:text-ink'}`}
+              >{t('tabStocks')}</button>
+            </div>
+            {/* Легенда цветовой шкалы */}
+            <div className="flex items-center gap-2 text-[11px] text-soft">
+              <span className="text-down">−</span>
+              <span className="h-2.5 w-32 rounded-full" style={{ background: 'linear-gradient(90deg, #f6465d, #4a2330, #2f3945, #1e4a3b, #16c784)' }} />
+              <span className="text-up">+</span>
+            </div>
           </div>
         </div>
 

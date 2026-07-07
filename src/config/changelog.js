@@ -6,6 +6,7 @@ export const CHANGELOG = [
     date: '2026-07-06',
     tag: 'feature',
     emoji: '📈',
+    shot: '/news/stocks.png',
     title: { ru: 'Акции и смешанный портфель', en: 'Stocks & mixed portfolio' },
     text: {
       ru: 'Появилась вкладка «Акции»: цены, графики, страница компании. Портфель теперь считает крипту и акции вместе — общий P/L на одном экране.',
@@ -36,6 +37,7 @@ export const CHANGELOG = [
     date: '2026-07-05',
     tag: 'feature',
     emoji: '⚡',
+    shot: '/news/feed.png',
     title: { ru: 'Цены в реальном времени', en: 'Real-time prices' },
     text: {
       ru: 'Курсы криптовалют теперь обновляются вживую через Binance WebSocket — цена мигает при каждом изменении.',
@@ -66,6 +68,7 @@ export const CHANGELOG = [
     date: '2026-07-02',
     tag: 'improve',
     emoji: '🌍',
+    shot: '/news/heatmap.png',
     title: { ru: '6 языков, темы и валюты', en: '6 languages, themes & currencies' },
     text: {
       ru: 'Интерфейс на 6 языках, тёмная/светлая тема, цены в USD/EUR/RUB. Тепловая карта, конвертер, сравнение монет.',
