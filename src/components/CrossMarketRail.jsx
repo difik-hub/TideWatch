@@ -42,7 +42,7 @@ export default function CrossMarketRail({ tab }) {
   const modeLabel = { gainers: t('topGainers'), losers: t('topLosers'), cap: t('byCap') }
 
   return (
-    <aside className="hidden min-[1560px]:flex flex-col fixed top-[188px] left-[calc((100vw-64rem)/2-272px)] w-[252px] max-h-[calc(100dvh-14rem)] z-30
+    <aside className="hidden min-[1560px]:flex flex-col fixed top-1/2 -translate-y-1/2 left-[calc((100vw-64rem)/2-272px)] w-[252px] max-h-[calc(100dvh-9rem)] z-30
                       rounded-2xl border border-line bg-panel/85 backdrop-blur p-3 shadow-[var(--shadow)]">
       <div className="flex items-center justify-between px-0.5 mb-0.5">
         <span className="text-[15px] font-bold text-ink">
