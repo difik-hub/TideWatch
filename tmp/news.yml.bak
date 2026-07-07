@@ -1,0 +1,15 @@
+name: news-mirror
+# Планировщик новостного mirror: раз в час пингует эндпоинт, который постит
+# свежие крипто-новости в канал (перефраз). Сам эндпоинт защищён от спама
+# кешем (s-maxage) и требует GROQ_API_KEY, так что лишних постов не будет.
+on:
+  schedule:
+    - cron: '0 * * * *'   # каждый час (UTC); GitHub может задерживать — это ок
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger news mirror
+        run: curl -s -m 30 "https://tidewatchi.vercel.app/api/news-post" || true
