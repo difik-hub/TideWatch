@@ -19,6 +19,19 @@ const field = (block, tag) => {
   return m ? strip(m[1]) : ''
 }
 
+// Краткое содержание статьи из <description>/<content:encoded>: чистим от
+// boilerplate и обрезаем до N символов по границе слова.
+function summarize(block, max = 400) {
+  let s = field(block, 'description') || field(block, 'content:encoded') || ''
+  s = s.replace(/The post .*? appeared first on .*/i, '')
+       .replace(/Read more:.*/i, '')
+       .replace(/\s+/g, ' ')
+       .trim()
+  if (s.length <= max) return s
+  const cut = s.slice(0, max)
+  return cut.slice(0, cut.lastIndexOf(' ')).trim() + '…'
+}
+
 const imageOf = (block) => {
   const m = block.match(/<media:content[^>]*url="([^"]+)"/i)
     || block.match(/<media:thumbnail[^>]*url="([^"]+)"/i)
@@ -41,6 +54,7 @@ async function parseFeed(feed) {
       domain: feed.domain,
       published_at: field(it, 'pubDate') || field(it, 'dc:date') || field(it, 'published'),
       image: imageOf(it),
+      summary: summarize(it),
       currencies: [],
     })).filter((x) => x.title && x.url)
   } catch {
