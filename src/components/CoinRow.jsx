@@ -2,6 +2,7 @@ import { memo } from 'react'
 import { Link } from 'react-router-dom'
 import Sparkline from './Sparkline'
 import LivePrice from './LivePrice'
+import TickerLogo from './TickerLogo'
 import { TrendArrow } from './Icon'
 import { useSettings } from '../store/settings'
 import { useT } from '../i18n/useT'
@@ -52,9 +53,7 @@ function CoinRow({ coin, isFav, onToggleFav, rates, livePrice = null }) {
 
       {/* Монета */}
       <span className="flex items-center gap-2 min-w-0">
-        {coin.image
-          ? <img src={coin.image} alt="" className="w-6 h-6 rounded-full shrink-0" loading="lazy" />
-          : <span className="grid place-items-center w-6 h-6 rounded-full shrink-0 bg-brand-soft text-brand-ink text-[9px] font-bold uppercase">{coin.symbol?.slice(0, 2)}</span>}
+        <TickerLogo src={coin.image} symbol={coin.symbol} size={24} />
         <span className="min-w-0">
           <span className="block text-[13px] font-medium truncate leading-tight">{coin.name}</span>
           <span className="block text-[10px] text-faint uppercase tnum leading-tight">{coin.symbol}</span>

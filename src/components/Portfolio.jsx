@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Drawer from './Drawer'
 import Icon, { TrendArrow } from './Icon'
+import TickerLogo from './TickerLogo'
 import { useUI } from '../store/ui'
 import { useSettings } from '../store/settings'
 import { useT } from '../i18n/useT'
@@ -133,9 +134,7 @@ export default function Portfolio() {
             return (
               <div key={h.id} className="bg-panel2 border border-line rounded-xl px-3 py-2.5">
                 <div className="flex items-center gap-3">
-                  {h.image
-                    ? <img src={h.image} alt="" className="w-7 h-7 rounded-full" />
-                    : <span className="grid place-items-center w-7 h-7 rounded-full shrink-0 bg-brand-soft text-brand-ink text-[9px] font-bold uppercase">{h.symbol?.slice(0, 2)}</span>}
+                  <TickerLogo src={h.image} symbol={h.symbol} size={28} />
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium">{h.symbol?.toUpperCase()} <span className="text-faint text-xs tnum">× {h.amount}</span></div>
                     {plPct != null && (

@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import Modal from './Modal'
 import Icon from './Icon'
+import TickerLogo from './TickerLogo'
 import { useUI } from '../store/ui'
 import { useSettings } from '../store/settings'
 import { useT } from '../i18n/useT'
 import { fetchMarkets, fetchRates } from '../lib/api'
+import { fetchStocks } from '../lib/stocksApi'
 import { formatPrice, convertPrice } from '../lib/format'
 import { getAlerts, addAlert, removeAlert, requestNotifyPermission } from '../lib/alerts'
 import { logActivity } from '../lib/activity'
@@ -16,6 +18,7 @@ export default function Alerts() {
   const t = useT()
 
   const [coins, setCoins] = useState([])
+  const [stocks, setStocks] = useState([])
   const [rates, setRates] = useState(null)
   const [list, setList] = useState(() => getAlerts())
   const [coinId, setCoinId] = useState('bitcoin')
@@ -28,10 +31,13 @@ export default function Alerts() {
     requestNotifyPermission()
     if (ui.payload?.coinId) setCoinId(ui.payload.coinId)
     fetchMarkets(Math.max(coinCount, 100), 1, currency).then(setCoins).catch(() => {})
+    fetchStocks().then(setStocks).catch(() => {})
     fetchRates().then(setRates).catch(() => {})
   }, [open, currency, coinCount])
 
-  const coin = useMemo(() => coins.find((c) => c.id === coinId) || coins[0], [coins, coinId])
+  // Крипта + акции вместе: алерты можно ставить на оба рынка
+  const all = useMemo(() => [...coins, ...stocks], [coins, stocks])
+  const coin = useMemo(() => all.find((c) => c.id === coinId) || all[0], [all, coinId])
 
   const create = () => {
     const val = parseFloat(String(target).replace(',', '.'))
@@ -42,6 +48,7 @@ export default function Alerts() {
       coinName: coin.name,
       symbol: coin.symbol,
       image: coin.image,
+      kind: coin.kind === 'stock' ? 'stock' : 'crypto',
       direction,
       currency,
       targetDisplay: val,
@@ -68,9 +75,18 @@ export default function Alerts() {
               onChange={(e) => setCoinId(e.target.value)}
               className="flex-1 min-w-0 bg-panel2 border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-brand/60"
             >
-              {coins.slice(0, 100).map((c) => (
-                <option key={c.id} value={c.id}>{c.name} ({c.symbol.toUpperCase()})</option>
-              ))}
+              <optgroup label={t('tabCrypto')}>
+                {coins.slice(0, 100).map((c) => (
+                  <option key={c.id} value={c.id}>{c.name} ({c.symbol.toUpperCase()})</option>
+                ))}
+              </optgroup>
+              {stocks.length > 0 && (
+                <optgroup label={t('tabStocks')}>
+                  {stocks.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name} ({c.symbol.toUpperCase()})</option>
+                  ))}
+                </optgroup>
+              )}
             </select>
             <div className="flex rounded-xl border border-line overflow-hidden shrink-0">
               <button
@@ -108,7 +124,7 @@ export default function Alerts() {
           )}
           {list.map((a) => (
             <div key={a.id} className="flex items-center gap-3 bg-panel2 border border-line rounded-xl px-3 py-2.5">
-              <img src={a.image} alt="" className="w-7 h-7 rounded-full" />
+              <TickerLogo src={a.image} symbol={a.symbol} size={28} />
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium">{a.symbol?.toUpperCase()}</div>
                 <div className="text-xs text-soft tnum">

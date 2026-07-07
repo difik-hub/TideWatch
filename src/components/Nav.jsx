@@ -74,6 +74,7 @@ export default function Nav({ children }) {
       bg: 'color-mix(in oklab, var(--brand) 16%, transparent)',
       fg: 'var(--ink)',
       links: [
+        { label: t('newsTitle'), onClick: () => navigate('/news') },
         { label: t('topGainers'), onClick: () => navigate('/?view=gainers') },
         { label: t('topLosers'), onClick: () => navigate('/?view=losers') },
         { label: t('heatmapTitle'), onClick: () => navigate('/heatmap') },

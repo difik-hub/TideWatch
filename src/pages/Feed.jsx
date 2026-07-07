@@ -9,9 +9,11 @@ import Hero from '../components/Hero'
 import BlobBackdrop from '../components/BlobBackdrop'
 import NowMoving from '../components/NowMoving'
 import Onboarding from '../components/Onboarding'
+import CrossMarketRail from '../components/CrossMarketRail'
 import Icon from '../components/Icon'
 import { fetchMarkets, fetchGlobal, fetchRates, fetchSearch } from '../lib/api'
-import { fetchStocks } from '../lib/stocksApi'
+import { fetchStocks, searchStocks } from '../lib/stocksApi'
+import TickerLogo from '../components/TickerLogo'
 import { subscribeLive } from '../lib/binanceLive'
 import { getFavorites, toggleFavorite } from '../lib/favorites'
 import { checkAlerts, notify, playAlertSound } from '../lib/alerts'
@@ -46,6 +48,7 @@ export default function Feed() {
   const view = searchParams.get('view') || 'cap' // cap | gainers | losers
   const tab = searchParams.get('tab') === 'stocks' ? 'stocks' : 'crypto' // крипта | акции
   const switchTab = (t) => setSearchParams(t === 'stocks' ? { tab: 'stocks' } : {})
+  const [stCat, setStCat] = useState('all') // фильтр категории акций
 
   const [coins, setCoins] = useState([])
   const [loading, setLoading] = useState(true)
@@ -116,12 +119,15 @@ export default function Feed() {
 
   const onToggleFav = useCallback((id) => setFavs(new Set(toggleFavorite(id))), [])
 
-  // Проверка алертов при каждом обновлении данных (только крипта)
+  // Проверка алертов при обновлении данных — по загруженному рынку (крипта ИЛИ акции).
+  // Акции уже в USD, крипта — в валюте юзера (конвертируем).
   useEffect(() => {
-    if (tab !== 'crypto' || !coins.length || !rates) return
+    if (!coins.length) return
     const priceUsd = {}
     for (const c of coins) {
-      priceUsd[c.id] = convertPrice(c.current_price, currency, 'usd', rates)
+      priceUsd[c.id] = c.kind === 'stock'
+        ? c.current_price
+        : (rates ? convertPrice(c.current_price, currency, 'usd', rates) : null)
     }
     const fired = checkAlerts(priceUsd)
     if (fired.length) {
@@ -137,12 +143,13 @@ export default function Feed() {
 
   const deferredQuery = useDeferredValue(query)
 
-  // Поиск по всей базе CoinGecko (только на вкладке крипты; акции ищем локально)
+  // Глобальный поиск: крипта → CoinGecko, акции → FMP (любой тикер США)
   useEffect(() => {
     const q = deferredQuery.trim()
-    if (tab !== 'crypto' || q.length < 2) { setSearchResults([]); return }
+    if (q.length < 2) { setSearchResults([]); return }
     let alive = true
-    fetchSearch(q).then((r) => { if (alive) setSearchResults(r) }).catch(() => {})
+    const search = tab === 'stocks' ? searchStocks(q) : fetchSearch(q)
+    search.then((r) => { if (alive) setSearchResults(r) }).catch(() => {})
     return () => { alive = false }
   }, [deferredQuery, tab])
 
@@ -151,6 +158,7 @@ export default function Feed() {
     let list = coins
     if (q) list = list.filter((c) => c.name.toLowerCase().includes(q) || c.symbol.toLowerCase().includes(q))
     if (onlyFav) list = list.filter((c) => favs.has(c.id))
+    if (tab === 'stocks' && stCat !== 'all') list = list.filter((c) => c.cat === stCat)
     const d = (c) => c.price_change_percentage_24h_in_currency ?? c.price_change_percentage_24h ?? 0
     return [...list].sort((a, b) => {
       const fa = favs.has(a.id) ? 1 : 0
@@ -160,7 +168,7 @@ export default function Feed() {
       if (view === 'losers') return d(a) - d(b)
       return (a.market_cap_rank || 9999) - (b.market_cap_rank || 9999)
     })
-  }, [coins, deferredQuery, onlyFav, favs, view])
+  }, [coins, deferredQuery, onlyFav, favs, view, tab, stCat])
 
   // «Рынок» = медиана изменения за 24ч по всем загруженным монетам
   const marketMedian = useMemo(() => {
@@ -185,6 +193,8 @@ export default function Feed() {
 
   return (
     <div className="min-h-[100dvh] page">
+      {/* Кросс-рыночная боковина (ПК): топ другого рынка в пустом гуттере */}
+      {coins.length > 0 && <CrossMarketRail tab={tab} />}
       <Nav>
         <div className="flex gap-2">
           <div className="relative flex-1">
@@ -206,10 +216,10 @@ export default function Feed() {
                   <button
                     key={r.id}
                     onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => { navigate(`/coin/${r.id}`); setQuery(''); setSearchFocused(false) }}
+                    onClick={() => { navigate(r.href ?? `/coin/${r.id}`); setQuery(''); setSearchFocused(false) }}
                     className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-panel2 transition"
                   >
-                    {r.thumb ? <img src={r.thumb} alt="" className="w-6 h-6 rounded-full" /> : <span className="w-6 h-6 rounded-full bg-panel2" />}
+                    <TickerLogo src={r.thumb} symbol={r.symbol} size={24} />
                     <span className="flex-1 min-w-0 truncate text-sm font-medium">{r.name}</span>
                     <span className="text-faint text-[11px] uppercase tnum">{r.symbol}</span>
                     {r.rank && <span className="text-faint text-[11px] tnum">#{r.rank}</span>}
@@ -277,6 +287,21 @@ export default function Feed() {
               {stocksClosed ? t('marketClosed') : t('marketOpen')}
             </span>
             <span className="text-faint">{t('stocksNote')}</span>
+          </div>
+        )}
+
+        {/* Чипы-фильтры категорий акций */}
+        {tab === 'stocks' && coins.length > 0 && !query && (
+          <div className="flex gap-2 overflow-x-auto pb-2 mb-3 -mx-4 px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {[['all', t('catAll')], ['crypto', t('catCrypto')], ['tech', t('catTech')], ['meme', t('catMeme')], ['etf', t('catEtf')]].map(([k, label]) => (
+              <button
+                key={k}
+                onClick={() => setStCat(k)}
+                className={`shrink-0 px-3.5 py-1.5 rounded-full text-[13px] font-medium border transition ${stCat === k ? 'bg-brand-soft border-brand/40 text-brand-ink' : 'bg-panel border-line text-soft hover:text-ink'}`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         )}
 

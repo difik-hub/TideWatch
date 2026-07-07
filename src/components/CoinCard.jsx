@@ -2,6 +2,7 @@ import { memo } from 'react'
 import { Link } from 'react-router-dom'
 import Sparkline from './Sparkline'
 import LivePrice from './LivePrice'
+import TickerLogo from './TickerLogo'
 import Icon, { TrendArrow } from './Icon'
 import { useSettings } from '../store/settings'
 import { useUI } from '../store/ui'
@@ -86,9 +87,7 @@ function CoinCard({ coin, isFav, onToggleFav, index = 0, rates, marketMedian, li
       style={{ animationDelay: `${Math.min(index * 24, 360)}ms` }}
     >
       <div className="flex items-center gap-3">
-        {coin.image
-          ? <img src={coin.image} alt={coin.name} className="w-9 h-9 rounded-full" loading="lazy" />
-          : <span className="grid place-items-center w-9 h-9 rounded-full shrink-0 bg-brand-soft text-brand-ink text-[11px] font-bold uppercase">{coin.symbol?.slice(0, 2)}</span>}
+        <TickerLogo src={coin.image} symbol={coin.symbol} size={36} />
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">

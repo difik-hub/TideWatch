@@ -1,37 +1,22 @@
-// Слой работы с акциями (Twelve Data через наш кеш-прокси /api/td).
-// Квоты приводятся к тому же формату, что и монеты CoinGecko, чтобы
-// CoinRow/CoinCard/поиск/избранное работали без переделки.
+// Слой работы с акциями (Financial Modeling Prep через наш прокси /api/fmp).
+// Квоты приводятся к формату монеты CoinGecko, чтобы CoinRow/CoinCard/поиск/
+// избранное/портфель/алерты работали без переделки. Лента — серверный fan-out
+// (батч у FMP платный). Логотип — по предсказуемому CDN-URL FMP.
 
-import { STOCK_SYMBOLS, stockName } from '../config/stocks'
-
-// В проде — через кеш-прокси (ключ на сервере). В dev серверлесса нет,
-// поэтому по желанию ходим напрямую с VITE_TD_API_KEY (только для локалки).
-const DEV_KEY = import.meta.env.VITE_TD_API_KEY
-const PROD = import.meta.env.PROD
+import { STOCK_SYMBOLS, stockName, stockCat } from '../config/stocks'
 
 const cache = new Map()
 const TTL = 60_000
-
 const num = (v) => (v == null || v === '' ? null : Number(v))
-
-function tdUrl(path, params) {
-  const qs = new URLSearchParams(params)
-  if (PROD) return `/api/td?p=${path}&${qs.toString()}`
-  if (!DEV_KEY) return null // в dev без ключа акции недоступны
-  qs.set('apikey', DEV_KEY)
-  return `https://api.twelvedata.com/${path}?${qs.toString()}`
-}
+const logoUrl = (sym) => `https://images.financialmodelingprep.com/symbol/${String(sym).toUpperCase()}.png`
 
 async function getJSON(url, ttl = TTL) {
-  if (!url) return null
   const cached = cache.get(url)
   if (cached && Date.now() - cached.ts < ttl) return cached.data
   try {
     const res = await fetch(url, { headers: { accept: 'application/json' } })
     const data = await res.json()
-    if (data && (data.status === 'error' || data.code >= 400)) {
-      return cached?.data ?? null // лимит/ошибка — отдаём last-good
-    }
+    if (data && data.error) return cached?.data ?? null
     cache.set(url, { ts: Date.now(), data })
     return data
   } catch {
@@ -39,65 +24,94 @@ async function getJSON(url, ttl = TTL) {
   }
 }
 
-// Квота Twelve Data → объект в формате монеты
-function quoteToCoin(q, rank) {
-  const price = num(q.close)
-  const pct = num(q.percent_change)
+// FMP-квота → объект в формате монеты
+function quoteToCoin(q, rank, marketOpen) {
+  const sym = q.symbol
   return {
-    id: q.symbol,
-    symbol: q.symbol,
-    name: q.name || stockName(q.symbol),
-    image: '', // логотипа нет — CoinRow покажет монограмму
+    id: sym,
+    symbol: sym,
+    name: q.name || stockName(sym),
+    image: logoUrl(sym),
     kind: 'stock',
-    href: `/stock/${q.symbol}`,
-    current_price: price,
-    price_change_percentage_24h: pct,
-    price_change_percentage_24h_in_currency: pct,
-    market_cap: null,
+    cat: stockCat(sym),
+    href: `/stock/${sym}`,
+    current_price: num(q.price),
+    price_change_percentage_24h: num(q.changePercentage),
+    price_change_percentage_24h_in_currency: num(q.changePercentage),
+    market_cap: num(q.marketCap),
     market_cap_rank: rank,
     total_volume: num(q.volume),
-    is_market_open: q.is_market_open === true,
-    fifty_two_week: q.fifty_two_week || null,
+    is_market_open: !!marketOpen,
+    fifty_two_week: { low: num(q.yearLow), high: num(q.yearHigh) },
     open: num(q.open),
-    high: num(q.high),
-    low: num(q.low),
-    previous_close: num(q.previous_close),
+    high: num(q.dayHigh),
+    low: num(q.dayLow),
+    previous_close: num(q.previousClose),
     exchange: q.exchange || null,
-    currency: q.currency || 'USD',
+    currency: 'USD',
   }
 }
 
-// Все акции из конфига одним батчем (порядок = ранг для сортировки)
+// Вся лента акций одним запросом (сервер обходит список сам)
 export async function fetchStocks() {
-  const url = tdUrl('quote', { symbol: STOCK_SYMBOLS.join(',') })
+  const url = `/api/fmp?p=feed&symbols=${encodeURIComponent(STOCK_SYMBOLS.join(','))}`
   const data = await getJSON(url)
-  if (!data) return []
-  // Батч → { SYM: {...} }; один символ → объект напрямую
-  const rows = data.symbol ? { [data.symbol]: data } : data
-  const out = []
-  STOCK_SYMBOLS.forEach((sym, i) => {
-    const q = rows[sym]
-    if (q && q.close != null) out.push(quoteToCoin(q, i + 1))
-  })
-  return out
+  const quotes = data?.quotes
+  if (!Array.isArray(quotes)) return []
+  // Ранжируем по реальной капитализации
+  const sorted = [...quotes].filter((q) => q.price != null).sort((a, b) => (b.marketCap || 0) - (a.marketCap || 0))
+  return sorted.map((q, i) => quoteToCoin(q, i + 1, data.marketOpen))
 }
 
-// Квота одной акции (для страницы /stock/:sym)
+// Квота одной акции (страница /stock/:sym)
 export async function fetchStockQuote(symbol) {
-  const url = tdUrl('quote', { symbol })
-  const data = await getJSON(url)
-  if (!data || data.close == null) return null
-  return quoteToCoin(data, null)
+  const data = await getJSON(`/api/fmp?p=quote&symbol=${encodeURIComponent(symbol)}`)
+  const q = Array.isArray(data) ? data[0] : null
+  if (!q || q.price == null) return null
+  return quoteToCoin(q, null, null)
 }
 
-// Дневной график за N дней (для страницы акции)
-export async function fetchStockSeries(symbol, days = 30) {
-  const url = tdUrl('time_series', { symbol, interval: '1day', outputsize: String(days) })
-  const data = await getJSON(url, 3600_000)
-  const values = data?.values
-  if (!Array.isArray(values)) return null
-  // Twelve Data отдаёт от новых к старым — разворачиваем для графика
-  return values
-    .map((v) => ({ t: v.datetime, price: Number(v.close) }))
-    .reverse()
+// Профиль (сектор, описание, лого) — для страницы акции
+export async function fetchStockProfile(symbol) {
+  const data = await getJSON(`/api/fmp?p=profile&symbol=${encodeURIComponent(symbol)}`, 3600_000)
+  const p = Array.isArray(data) ? data[0] : null
+  if (!p) return null
+  return { sector: p.sector || null, industry: p.industry || null, description: p.description || '', ceo: p.ceo || null, website: p.website || null }
+}
+
+// Дневной график (historical-price-eod/light) → [{t, price}] по возрастанию даты
+export async function fetchStockSeries(symbol, days = 90) {
+  const data = await getJSON(`/api/fmp?p=history&symbol=${encodeURIComponent(symbol)}`, 3600_000)
+  const arr = Array.isArray(data) ? data : data?.historical
+  if (!Array.isArray(arr)) return null
+  return arr
+    .map((v) => ({ t: v.date, price: Number(v.price ?? v.close) }))
+    .filter((v) => v.t && !isNaN(v.price))
+    .sort((a, b) => (a.t < b.t ? -1 : 1))
+    .slice(-days)
+}
+
+// Ближайшая дата отчёта (earnings)
+export async function fetchStockEarnings(symbol) {
+  const data = await getJSON(`/api/fmp?p=earnings&symbol=${encodeURIComponent(symbol)}`, 21600_000)
+  if (!Array.isArray(data)) return null
+  const today = new Date().toISOString().slice(0, 10)
+  const future = data.filter((e) => e.date >= today).sort((a, b) => (a.date < b.date ? -1 : 1))
+  return future[0]?.date || null
+}
+
+// Поиск акций (FMP search-name, только биржи США)
+export async function searchStocks(query) {
+  const q = query.trim()
+  if (q.length < 2) return []
+  const data = await getJSON(`/api/fmp?p=search&query=${encodeURIComponent(q)}`, 120_000)
+  if (!Array.isArray(data)) return []
+  return data.slice(0, 10).map((x) => ({
+    id: x.symbol,
+    name: x.name,
+    symbol: x.symbol,
+    thumb: logoUrl(x.symbol),
+    rank: null,
+    href: `/stock/${x.symbol}`,
+  }))
 }
