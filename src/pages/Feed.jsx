@@ -18,6 +18,7 @@ import { subscribeLive } from '../lib/binanceLive'
 import { getFavorites, toggleFavorite } from '../lib/favorites'
 import { checkAlerts, notify, playAlertSound } from '../lib/alerts'
 import { convertPrice } from '../lib/format'
+import { TON_ADDRESS, tonDonateUrl } from '../config/support'
 import { useSettings } from '../store/settings'
 import { useUI } from '../store/ui'
 import { useT } from '../i18n/useT'
@@ -452,13 +453,25 @@ export default function Feed() {
         )}
 
         <footer className="text-center py-10">
-          <button
-            onClick={() => ui.openFeedback()}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-panel border border-line text-sm font-medium text-ink hover:border-brand/50 hover:text-brand-ink transition"
-          >
-            <Icon name="about" size={16} className="text-brand-ink" />
-            {t('feedbackBtn')}
-          </button>
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            <button
+              onClick={() => ui.openFeedback()}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-panel border border-line text-sm font-medium text-ink hover:border-brand/50 hover:text-brand-ink transition"
+            >
+              <Icon name="about" size={16} className="text-brand-ink" />
+              {t('feedbackBtn')}
+            </button>
+            {TON_ADDRESS && (
+              <a
+                href={tonDonateUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-panel border border-line text-sm font-medium text-ink hover:border-brand/50 hover:text-brand-ink transition"
+              >
+                {t('supportAuthor')}
+              </a>
+            )}
+          </div>
           <div className="text-xs text-faint leading-relaxed mt-6">
             <div>{t('footerData')}</div>
             <div className="mt-1">{t('disclaimer')}</div>
