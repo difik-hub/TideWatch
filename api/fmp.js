@@ -77,7 +77,7 @@ export default async function handler(req, res) {
       return
     }
     if (p === 'earnings') {
-      const data = await fmp('earnings', { symbol: u.searchParams.get('symbol'), limit: '8' }, key)
+      const data = await fmp('earnings', { symbol: u.searchParams.get('symbol'), limit: '5' }, key)
       res.setHeader('Cache-Control', 's-maxage=43200, stale-while-revalidate=43200')
       res.status(200).json(data)
       return
