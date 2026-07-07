@@ -1,7 +1,7 @@
-// Крипто-новости в Telegram-канал (Vercel Cron). Каждая новость — отдельный пост:
-// картинка + содержание НА ДВУХ ЯЗЫКАХ (RU сверху, EN снизу) + ссылка на источник
-// В ТЕКСТЕ. Кнопка — только на наш сайт. Стиль как у утренней сводки.
-// env: TG_BOT_TOKEN, TG_CHANNEL_ID, опц. NEWS_COUNT (по умолч. 4), CRON_SECRET.
+// Крипто-новости в Telegram-канал (Vercel Cron). Каждая новость — НАШ пост:
+// берём суть, ПЕРЕФРАЗИРУЕМ (не копия), на 2 языках (RU сверху ➖ EN снизу),
+// БЕЗ ссылок на источник, кнопка — только на наш сайт. Картинка — из статьи.
+// env: TG_BOT_TOKEN, TG_CHANNEL_ID, опц. GROQ_API_KEY (перефраз), NEWS_COUNT(4), CRON_SECRET.
 
 import { fetchAllNews } from '../src/lib/rss.js'
 
@@ -9,17 +9,42 @@ const SITE = 'https://tidewatchi.vercel.app'
 const esc = (s) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 const cut = (s, n) => (s && s.length > n ? s.slice(0, s.slice(0, n).lastIndexOf(' ')).trim() + '…' : s || '')
 
-// Перевод EN→RU через публичный эндпоинт Google (без ключа). Фолбэк — оригинал.
+// Перевод EN→RU (Google, без ключа) — фолбэк, если нет LLM для перефраза
 async function toRu(text) {
   if (!text) return ''
   try {
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ru&dt=t&q=${encodeURIComponent(text)}`
-    const r = await fetch(url, { headers: { 'user-agent': 'Mozilla/5.0' } })
-    const j = await r.json()
+    const j = await (await fetch(url, { headers: { 'user-agent': 'Mozilla/5.0' } })).json()
     return (j[0] || []).map((x) => x[0]).join('') || text
-  } catch {
-    return text
+  } catch { return text }
+}
+
+// Перефраз через Groq (бесплатный, OpenAI-совместимый). Возвращает {ruTitle,ru,enTitle,en}.
+async function rewrite(title, summary) {
+  const key = process.env.GROQ_API_KEY
+  if (key) {
+    try {
+      const body = {
+        model: 'llama-3.3-70b-versatile',
+        temperature: 0.6,
+        response_format: { type: 'json_object' },
+        messages: [
+          { role: 'system', content: 'You rewrite crypto news into short ORIGINAL posts for a Telegram channel. Paraphrase — never copy sentences verbatim. No source names, no links. Neutral, factual. Return JSON only.' },
+          { role: 'user', content: `Title: ${title}\nSummary: ${summary}\n\nWrite an original 2-3 sentence post in Russian and English. Return JSON: {"ruTitle":"","ru":"","enTitle":"","en":""}` },
+        ],
+      }
+      const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` }, body: JSON.stringify(body),
+      })
+      const j = await r.json()
+      const txt = j?.choices?.[0]?.message?.content || ''
+      const parsed = JSON.parse(txt.slice(txt.indexOf('{'), txt.lastIndexOf('}') + 1))
+      if (parsed.ru && parsed.en) return parsed
+    } catch { /* упадём на перевод */ }
   }
+  // Фолбэк: перевод (RU) + оригинал (EN)
+  const [ruTitle, ru] = await Promise.all([toRu(title), toRu(summary)])
+  return { ruTitle, ru, enTitle: title, en: summary }
 }
 
 async function tg(method, token, payload) {
@@ -43,16 +68,11 @@ export default async function handler(req, res) {
 
     let posted = 0
     for (const n of top) {
-      const enTitle = n.title
-      const enSummary = cut(n.summary, 300)
-      const [ruTitle, ruSummary] = await Promise.all([toRu(enTitle), toRu(enSummary)])
-
-      // RU сверху, EN снизу; ссылка на источник — в тексте; кнопка — только сайт
+      const p = await rewrite(n.title, cut(n.summary, 320))
       const text =
-        `📰 <b>${esc(ruTitle)}</b>\n\n${esc(ruSummary)}\n\n` +
+        `📰 <b>${esc(p.ruTitle || n.title)}</b>\n\n${esc(p.ru)}\n\n` +
         `➖➖➖\n\n` +
-        `📰 <b>${esc(enTitle)}</b>\n\n${esc(enSummary)}\n\n` +
-        `🔗 <a href="${esc(n.url)}">${esc(n.source_name)}</a>`
+        `📰 <b>${esc(p.enTitle || n.title)}</b>\n\n${esc(p.en)}`
 
       const btn = { inline_keyboard: [[{ text: '🌊 TideWatch', url: SITE }]] }
 
