@@ -54,15 +54,20 @@ export default function News() {
           <SectionTitle icon="wave">{t('newsUpdates')}</SectionTitle>
           <div className="space-y-3">
             {CHANGELOG.map((e, i) => (
-              <div key={i} className="card rounded-2xl p-4">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span className={`text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-md ${tagStyle[e.tag] || tagStyle.improve}`}>
-                    {tagLabel[e.tag] || e.tag}
-                  </span>
-                  <span className="text-[11px] text-faint tnum">{fmtDate(e.date)}</span>
+              <div key={i} className="card rounded-2xl overflow-hidden flex">
+                <div className="w-[76px] sm:w-24 shrink-0 grid place-items-center text-[30px] sm:text-4xl bg-gradient-to-br from-brand/25 via-brand-soft to-panel2 border-r border-line">
+                  {e.emoji || '🌊'}
                 </div>
-                <div className="text-[15px] font-semibold">{e.title[lang] ?? e.title.en}</div>
-                <p className="text-[13px] text-soft leading-relaxed mt-1">{e.text[lang] ?? e.text.en}</p>
+                <div className="p-4 flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className={`text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-md ${tagStyle[e.tag] || tagStyle.improve}`}>
+                      {tagLabel[e.tag] || e.tag}
+                    </span>
+                    <span className="text-[11px] text-faint tnum">{fmtDate(e.date)}</span>
+                  </div>
+                  <div className="text-[15px] font-semibold">{e.title[lang] ?? e.title.en}</div>
+                  <p className="text-[13px] text-soft leading-relaxed mt-1">{e.text[lang] ?? e.text.en}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -87,15 +92,26 @@ export default function News() {
                   href={n.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="card-link block rounded-xl p-3.5"
+                  className="card-link flex gap-3 rounded-xl p-3 items-stretch"
                 >
-                  <div className="text-[14px] font-medium leading-snug">{n.title}</div>
-                  <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                    {n.source && <span className="text-[11px] text-faint">{n.source}</span>}
-                    {n.published && <span className="text-[11px] text-faint tnum">· {fmtDate(n.published)}</span>}
-                    {n.currencies?.map((c) => (
-                      <span key={c} className="text-[10px] font-semibold uppercase text-brand-ink bg-brand-soft px-1.5 py-0.5 rounded">{c}</span>
-                    ))}
+                  {n.image && (
+                    <img
+                      src={n.image}
+                      alt=""
+                      loading="lazy"
+                      onError={(ev) => { ev.currentTarget.style.display = 'none' }}
+                      className="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-lg shrink-0 bg-panel2"
+                    />
+                  )}
+                  <div className="flex-1 min-w-0 flex flex-col justify-center">
+                    <div className="text-[14px] font-medium leading-snug line-clamp-3">{n.title}</div>
+                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                      {n.source && <span className="text-[11px] text-brand-ink font-medium">{n.source}</span>}
+                      {n.published && <span className="text-[11px] text-faint tnum">· {fmtDate(n.published)}</span>}
+                      {n.currencies?.map((c) => (
+                        <span key={c} className="text-[10px] font-semibold uppercase text-brand-ink bg-brand-soft px-1.5 py-0.5 rounded">{c}</span>
+                      ))}
+                    </div>
                   </div>
                 </a>
               ))}

@@ -14,6 +14,7 @@ export async function fetchCryptoNews() {
       url: p.url || p.original_url || p.source?.url,
       source: p.source?.title || p.source_name || p.domain,
       published: p.published_at || p.created_at,
+      image: p.image || '',
       currencies: (p.currencies || p.instruments || []).map((c) => c.code || c.symbol).filter(Boolean).slice(0, 4),
     })).filter((x) => x.title && x.url)
     if (items.length) { cache.ts = Date.now(); cache.data = items }

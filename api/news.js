@@ -19,6 +19,16 @@ const field = (block, tag) => {
   return m ? strip(m[1]) : ''
 }
 
+// Картинка новости: media:content / media:thumbnail / enclosure / первый <img> в описании
+const imageOf = (block) => {
+  let m = block.match(/<media:content[^>]*url="([^"]+)"/i)
+    || block.match(/<media:thumbnail[^>]*url="([^"]+)"/i)
+    || block.match(/<enclosure[^>]*url="([^"]+)"[^>]*type="image/i)
+    || block.match(/<enclosure[^>]*type="image[^>]*url="([^"]+)"/i)
+    || block.match(/<img[^>]*src="([^"]+)"/i)
+  return m ? m[1].replace(/&amp;/g, '&') : ''
+}
+
 async function parseFeed(feed) {
   try {
     const r = await fetch(feed.url, { headers: { 'user-agent': 'Mozilla/5.0 TideWatch', accept: 'application/rss+xml,text/xml,*/*' } })
@@ -31,6 +41,7 @@ async function parseFeed(feed) {
       source_name: feed.source,
       domain: feed.domain,
       published_at: field(it, 'pubDate') || field(it, 'dc:date') || field(it, 'published'),
+      image: imageOf(it),
       currencies: [],
     })).filter((x) => x.title && x.url)
   } catch {

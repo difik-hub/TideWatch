@@ -10,7 +10,6 @@ import Converter from './components/Converter'
 import Alerts from './components/Alerts'
 import Portfolio from './components/Portfolio'
 import Feedback from './components/Feedback'
-import RightDock from './components/RightDock'
 import { UIProvider, useUI } from './store/ui'
 
 function GlobalOverlays() {
@@ -38,7 +37,6 @@ export default function App() {
         <Route path="/heatmap" element={<Heatmap />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      <RightDock />
       <GlobalOverlays />
     </UIProvider>
   )
