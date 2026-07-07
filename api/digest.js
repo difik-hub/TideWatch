@@ -27,8 +27,8 @@ export default async function handler(req, res) {
     res.status(200).json({ skipped: 'TG_BOT_TOKEN or TG_CHANNEL_ID not set' })
     return
   }
-  const lang = process.env.TG_DIGEST_LANG === 'ru' ? 'ru' : 'en'
-  const t = L[lang]
+  // 'both' (по умолч.) — русский + английский одним постом; или 'ru'/'en'
+  const mode = ['ru', 'en'].includes(process.env.TG_DIGEST_LANG) ? process.env.TG_DIGEST_LANG : 'both'
 
   try {
     const [gRes, mRes] = await Promise.all([
@@ -36,19 +36,23 @@ export default async function handler(req, res) {
       fetch(`${CG}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&price_change_percentage=24h`).then((r) => r.json()),
     ])
     const coins = Array.isArray(mRes) ? mRes : []
-    const summary = buildMarketSummary(gRes?.data, coins, lang)
-
     const btc = coins.find((c) => c.id === 'bitcoin')
-    const btcLine = btc ? `\n₿ Bitcoin: $${Math.round(btc.current_price).toLocaleString('en-US')} (${btc.price_change_percentage_24h > 0 ? '+' : ''}${btc.price_change_percentage_24h?.toFixed(1)}%)` : ''
-
     const top = [...coins]
       .filter((c) => c.price_change_percentage_24h != null)
       .sort((a, b) => b.price_change_percentage_24h - a.price_change_percentage_24h)
       .slice(0, 3)
-      .map((c) => `• ${c.symbol.toUpperCase()} +${c.price_change_percentage_24h.toFixed(1)}%`)
-      .join('\n')
 
-    const text = `<b>${t.title}</b>\n\n${summary}${btcLine}\n\n<b>${t.gainers}</b>\n${top}`
+    const block = (lang) => {
+      const t = L[lang]
+      const summary = buildMarketSummary(gRes?.data, coins, lang)
+      const btcLine = btc ? `\n₿ Bitcoin: $${Math.round(btc.current_price).toLocaleString('en-US')} (${btc.price_change_percentage_24h > 0 ? '+' : ''}${btc.price_change_percentage_24h?.toFixed(1)}%)` : ''
+      const gainers = top.map((c) => `• ${c.symbol.toUpperCase()} +${c.price_change_percentage_24h.toFixed(1)}%`).join('\n')
+      return `<b>${t.title}</b>\n\n${summary}${btcLine}\n\n<b>${t.gainers}</b>\n${gainers}`
+    }
+
+    const text = mode === 'both'
+      ? `${block('ru')}\n\n➖➖➖\n\n${block('en')}`
+      : block(mode)
 
     await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
@@ -58,7 +62,7 @@ export default async function handler(req, res) {
         text,
         parse_mode: 'HTML',
         disable_web_page_preview: true,
-        reply_markup: { inline_keyboard: [[{ text: t.open, url: SITE }]] },
+        reply_markup: { inline_keyboard: [[{ text: L[mode === 'ru' ? 'ru' : 'en'].open, url: SITE }]] },
       }),
     })
     res.status(200).json({ ok: true })
