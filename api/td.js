@@ -30,9 +30,10 @@ export default async function handler(req, res) {
     // Twelve Data отдаёт 200 даже на ошибку — ловим её в теле (code/status)
     const isErr = data && (data.status === 'error' || data.code >= 400)
     if (isErr) {
-      // Лимит/ошибка — короткий кеш, чтобы отдать stale и не долбить лишний раз
-      res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=600')
-      res.status(200).json(data) // клиент сам покажет stale/last-good
+      // Лимит/ошибка — очень короткий кеш БЕЗ stale-while-revalidate, иначе один
+      // rate-limit «отравлял» бы кеш надолго. Быстро истекает → быстрое восстановление.
+      res.setHeader('Cache-Control', 's-maxage=15')
+      res.status(200).json(data)
       return
     }
 
