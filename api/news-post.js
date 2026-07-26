@@ -20,6 +20,13 @@ export default async function handler(req, res) {
   // Защиту от частых постов даёт MIN_GAP_MIN, а не кеш.
   res.setHeader('Cache-Control', 'no-store')
 
+  // Защита от чужих триггеров: если задан CRON_SECRET, пускаем только по нему
+  // (планировщик cron-job.org шлёт его в Authorization). Не задан — fail-open.
+  const secret = process.env.CRON_SECRET
+  if (secret && req.headers.authorization !== `Bearer ${secret}`) {
+    res.status(401).json({ error: 'unauthorized' }); return
+  }
+
   const token = process.env.TG_BOT_TOKEN
   const channel = process.env.TG_CHANNEL_ID
   if (!token || !channel) { res.status(200).json({ skipped: 'TG not configured' }); return }

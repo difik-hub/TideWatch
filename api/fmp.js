@@ -3,6 +3,8 @@
 // Поэтому лента акций собирается серверным fan-out'ом (?p=feed&symbols=...):
 // прокси сам обходит тикеры и отдаёт готовый массив, агрессивно кешируясь на edge.
 
+import { allow } from './_ratelimit.js'
+
 const BASE = 'https://financialmodelingprep.com/stable'
 const ALLOWED = new Set(['feed', 'quote', 'profile', 'history', 'earnings', 'search'])
 const US_EXCH = new Set(['NASDAQ', 'NYSE', 'AMEX'])
@@ -31,6 +33,7 @@ async function fmp(path, params, key) {
 }
 
 export default async function handler(req, res) {
+  if (!(await allow(req, 'fmp'))) { res.status(429).json({ error: 'rate limited' }); return }
   const key = process.env.FMP_API_KEY
   if (!key) { res.status(500).json({ error: 'FMP_API_KEY not set' }); return }
 

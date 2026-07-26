@@ -4,9 +4,12 @@
 // Путь передаётся параметром ?p=coins/markets (вложенные пути в имени функции
 // Vercel в plain-функциях не поддерживает). Только известные пути — не открытый прокси.
 
+import { allow } from './_ratelimit.js'
+
 const ALLOWED = /^(coins\/markets|search|global|exchange_rates|coins\/[a-z0-9_-]+|coins\/[a-z0-9_-]+\/market_chart)$/
 
 export default async function handler(req, res) {
+  if (!(await allow(req, 'cg', 60))) { res.status(429).json({ error: 'rate limited' }); return }
   const u = new URL(req.url, 'http://localhost')
   const p = decodeURIComponent(u.searchParams.get('p') || '')
 

@@ -3,9 +3,12 @@
 // Поэтому список акций держим коротким (<=8) и агрессивно кешируем на edge.
 // Путь идёт параметром ?p=quote|time_series (вложенные пути Vercel не поддерживает).
 
+import { allow } from './_ratelimit.js'
+
 const ALLOWED = new Set(['quote', 'time_series'])
 
 export default async function handler(req, res) {
+  if (!(await allow(req, 'td'))) { res.status(429).json({ error: 'rate limited' }); return }
   const key = process.env.TD_API_KEY
   if (!key) {
     res.status(500).json({ error: 'TD_API_KEY not set' })

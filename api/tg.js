@@ -105,6 +105,15 @@ export default async function handler(req, res) {
   if (!token) { res.status(500).json({ error: 'TG_BOT_TOKEN not configured' }); return }
   if (req.method !== 'POST') { res.status(200).json({ ok: true, hint: 'telegram webhook' }); return }
 
+  // Секрет вебхука: Telegram шлёт его в заголовке, если задан при setWebhook.
+  // Пока TG_WEBHOOK_SECRET не задан — бот работает как раньше (fail-open, чтобы
+  // не молчать до перерегистрации). Задай секрет + перерегистрируй вебхук — и
+  // чужие POST'ы (фейковые апдейты) будут отклоняться.
+  const whSecret = process.env.TG_WEBHOOK_SECRET
+  if (whSecret && req.headers['x-telegram-bot-api-secret-token'] !== whSecret) {
+    res.status(401).json({ error: 'unauthorized' }); return
+  }
+
   try {
     const msg = req.body?.message
     const chatId = msg?.chat?.id
