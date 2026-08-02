@@ -193,8 +193,6 @@ export default function Feed() {
 
   return (
     <div className="min-h-[100dvh] page">
-      {/* Кросс-рыночная боковина (ПК): топ другого рынка в пустом гуттере */}
-      {coins.length > 0 && <CrossMarketRail tab={tab} />}
       <Nav>
         <div className="flex gap-2">
           <div className="relative flex-1">
@@ -253,7 +251,11 @@ export default function Feed() {
         </section>
       )}
 
-      <main className="max-w-[1400px] mx-auto px-4 py-3">
+      {/* Кросс-рыночная боковина стоит колонкой рядом с лентой: топ «другого»
+          рынка всегда в поле зрения, ради чего вся затея с двумя рынками. */}
+      <div className="max-w-[1400px] mx-auto px-4 py-3 flex gap-3 items-start">
+        {coins.length > 0 && <CrossMarketRail tab={tab} />}
+        <main className="min-w-0 flex-1">
         {/* Вкладки Крипта | Акции — два рынка на одном экране (ядро видения).
             Слева и в одну строку со статусом: по центру они съедали полосу экрана. */}
         <div className="flex items-center gap-3 mb-1.5 flex-wrap">
@@ -470,7 +472,8 @@ export default function Feed() {
             <div className="mt-1">{t('disclaimer')}</div>
           </div>
         </footer>
-      </main>
+        </main>
+      </div>
     </div>
   )
 }
