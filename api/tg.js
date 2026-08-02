@@ -4,6 +4,7 @@
 // env: TG_BOT_TOKEN
 
 import { buildMarketSummary } from '../src/lib/marketSummary.js'
+import { hasStore, validToken, linkChat } from '../src/lib/alertStore.js'
 
 const CG = 'https://api.coingecko.com/api/v3'
 const SITE = 'https://tidewatchi.vercel.app'
@@ -128,16 +129,26 @@ export default async function handler(req, res) {
     let buttons = mainButtons
 
     if (cmd === '/start') {
-      reply =
-        '🌊 <b>Привет! Это TideWatch</b>\n\n' +
-        'Личный дежурный по рынкам: крипта и акции на одном экране, понятным языком.\n\n' +
-        '<b>Что умею:</b>\n' +
-        '/market — сводка рынка прямо сейчас\n' +
-        '/top — кто растёт, а кто падает\n' +
-        '/coin btc — разбор монеты\n' +
-        '/stock nvda — цена акции\n' +
-        '/channel — канал с новостями\n\n' +
-        'Жми кнопку ниже — приложение откроется прямо здесь, в Telegram 👇'
+      // /start <токен> приходит по ссылке с сайта: привязываем чат, чтобы
+      // алерты доходили сюда даже с закрытым браузером.
+      if (arg && validToken(arg) && hasStore() && (await linkChat(arg, chatId))) {
+        reply =
+          '<b>Telegram подключён</b>\n\n' +
+          'Теперь алерты на цену приходят сюда. Браузер можно закрывать: ' +
+          'цену сверяет наш сервер, а не вкладка.\n\n' +
+          'Возвращайся на сайт и ставь алерт на любую монету или акцию.'
+      } else {
+        reply =
+          '<b>Привет! Это TideWatch</b>\n\n' +
+          'Личный дежурный по рынкам: крипта и акции на одном экране, понятным языком.\n\n' +
+          '<b>Что умею:</b>\n' +
+          '/market — сводка рынка прямо сейчас\n' +
+          '/top — кто растёт, а кто падает\n' +
+          '/coin btc — разбор монеты\n' +
+          '/stock nvda — цена акции\n' +
+          '/channel — канал с новостями\n\n' +
+          'Жми кнопку ниже, приложение откроется прямо здесь, в Telegram.'
+      }
     } else if (cmd === '/help') {
       reply = HELP
     } else if (cmd === '/channel') {

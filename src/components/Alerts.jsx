@@ -9,6 +9,7 @@ import { fetchMarkets, fetchRates } from '../lib/api'
 import { fetchStocks } from '../lib/stocksApi'
 import { formatPrice, convertPrice } from '../lib/format'
 import { getAlerts, addAlert, removeAlert, requestNotifyPermission } from '../lib/alerts'
+import { fetchStatus, connectTelegram, pushAlert } from '../lib/tgAlerts'
 import { logActivity } from '../lib/activity'
 
 export default function Alerts() {
@@ -24,6 +25,9 @@ export default function Alerts() {
   const [coinId, setCoinId] = useState('bitcoin')
   const [target, setTarget] = useState('')
   const [direction, setDirection] = useState('above')
+  // Связка с ботом: пока её нет, алерт живёт только во вкладке
+  const [tg, setTg] = useState({ chatLinked: false, available: true })
+  const [waitingLink, setWaitingLink] = useState(false)
 
   useEffect(() => {
     if (!open) return
@@ -33,7 +37,25 @@ export default function Alerts() {
     fetchMarkets(Math.max(coinCount, 100), 1, currency).then(setCoins).catch(() => {})
     fetchStocks().then(setStocks).catch(() => {})
     fetchRates().then(setRates).catch(() => {})
+    fetchStatus().then(setTg)
   }, [open, currency, coinCount])
+
+  // После перехода в бота человек возвращается на вкладку: там и проверяем связку,
+  // опрашивать сервер по таймеру ради этого незачем.
+  useEffect(() => {
+    if (!open || !waitingLink) return
+    const recheck = () => fetchStatus().then((s) => {
+      setTg(s)
+      if (s.chatLinked) setWaitingLink(false)
+    })
+    window.addEventListener('focus', recheck)
+    return () => window.removeEventListener('focus', recheck)
+  }, [open, waitingLink])
+
+  const onConnect = async () => {
+    setWaitingLink(true)
+    await connectTelegram()
+  }
 
   // Крипта + акции вместе: алерты можно ставить на оба рынка
   const all = useMemo(() => [...coins, ...stocks], [coins, stocks])
@@ -43,6 +65,21 @@ export default function Alerts() {
     const val = parseFloat(String(target).replace(',', '.'))
     if (!coin || isNaN(val)) return
     const targetUsd = rates ? convertPrice(val, currency, 'usd', rates) : val
+    const kind = coin.kind === 'stock' ? 'stock' : 'crypto'
+
+    // Если Telegram подключён, правило уходит на сервер: там его проверит
+    // планировщик, и сообщение придёт даже с закрытым сайтом.
+    if (tg.chatLinked) {
+      pushAlert({
+        kind,
+        assetId: kind === 'stock' ? (coin.symbol || '').toUpperCase() : coin.id,
+        symbol: coin.symbol,
+        name: coin.name,
+        direction,
+        targetUsd,
+      }).catch(() => {})
+    }
+
     setList(addAlert({
       coinId: coin.id,
       coinName: coin.name,
@@ -67,6 +104,34 @@ export default function Alerts() {
   return (
     <Modal open={open} onClose={ui.close} title={t('alertsTitle')} icon="bell">
       <div className="space-y-5">
+        {/* Доставка в Telegram. Без неё алерт умирает вместе с вкладкой, поэтому
+            блок стоит первым, а не прячется в настройках. */}
+        {tg.available && (
+          <div className="border border-line bg-panel2 px-3 py-2.5 flex items-center gap-3">
+            <div className="flex-1 min-w-0 text-[13px]">
+              {tg.chatLinked ? (
+                <>
+                  <span className="font-semibold text-up">{t('tgLinked')}</span>
+                  <span className="text-soft"> {t('tgLinkedHint')}</span>
+                </>
+              ) : (
+                <>
+                  <span className="font-semibold">{t('tgConnectTitle')}</span>
+                  <span className="text-soft"> {t('tgConnectHint')}</span>
+                </>
+              )}
+            </div>
+            {!tg.chatLinked && (
+              <button
+                onClick={onConnect}
+                className="shrink-0 px-3 py-1.5 bg-brand text-white text-[12px] font-semibold hover:opacity-90 active:translate-y-px transition"
+              >
+                {waitingLink ? t('tgWaiting') : t('tgConnectBtn')}
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Форма создания */}
         <div className="space-y-2.5">
           <div className="flex gap-2">
