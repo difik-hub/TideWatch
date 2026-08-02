@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import CardNav from './CardNav'
 import Icon from './Icon'
+import Logo from './Logo'
 import { useT } from '../i18n/useT'
 import { useUI } from '../store/ui'
 import { countActiveAlerts } from '../lib/alerts'
@@ -61,8 +62,14 @@ export default function Nav({ children }) {
   )
 
   const brand = (
-    <Link to="/" className="wordmark text-ink" onClick={(e) => e.stopPropagation()} aria-label="TideWatch">
-      Tide<span className="wm-accent">Watch</span>
+    <Link
+      to="/"
+      className="flex items-center gap-2 text-ink"
+      onClick={(e) => e.stopPropagation()}
+      aria-label="TideWatch"
+    >
+      <Logo size={24} className="shrink-0" />
+      <span className="wordmark">TideWatch</span>
     </Link>
   )
 

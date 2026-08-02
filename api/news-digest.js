@@ -74,7 +74,7 @@ export default async function handler(req, res) {
         `➖➖➖\n\n` +
         `📰 <b>${esc(p.enTitle || n.title)}</b>\n\n${esc(p.en)}`
 
-      const btn = { inline_keyboard: [[{ text: '🌊 TideWatch', url: SITE }]] }
+      const btn = { inline_keyboard: [[{ text: 'TideWatch', url: SITE }]] }
 
       let out
       if (n.image) {

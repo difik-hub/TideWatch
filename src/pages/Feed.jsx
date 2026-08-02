@@ -6,7 +6,6 @@ import CoinRow from '../components/CoinRow'
 import Hero from '../components/Hero'
 // AdSlots отключён: вертикальный лейаут (вернуть — раскомментировать здесь и в разметке)
 // import AdSlots from '../components/AdSlots'
-import BlobBackdrop from '../components/BlobBackdrop'
 import NowMoving from '../components/NowMoving'
 import Onboarding from '../components/Onboarding'
 import CrossMarketRail from '../components/CrossMarketRail'
@@ -244,40 +243,42 @@ export default function Feed() {
           Вернуть — раскомментировать. Реклама переедет в горизонтальный слот. */}
       {/* <AdSlots /> */}
 
+      {/* Сводка рынка полосой, без декоративного фона: первый экран отдан данным,
+          а не картинке. Раньше здесь были hero.jpg и BlobBackdrop. */}
       {showHero && (
-        <section className="relative overflow-hidden border-b border-line">
-          {/* Фирменный фон-волна (Higgsfield), мягко замаскирован по краям */}
-          <img
-            src="/hero.jpg"
-            alt=""
-            aria-hidden="true"
-            loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)]"
-          />
-          <BlobBackdrop />
-          <div className="relative max-w-5xl mx-auto px-4 pt-6 pb-2">
+        <section className="border-b border-line">
+          <div className="max-w-[1400px] mx-auto px-4 py-2.5">
             <Hero global={global} coins={coins} />
           </div>
         </section>
       )}
 
-      <main className="max-w-5xl mx-auto px-4 py-5">
-        {/* Вкладки Крипта | Акции — два рынка на одном экране (ядро видения) */}
-        <div className="flex items-center justify-center gap-1 mb-4">
-          <div className="inline-flex rounded-xl border border-line bg-panel p-1">
+      <main className="max-w-[1400px] mx-auto px-4 py-3">
+        {/* Вкладки Крипта | Акции — два рынка на одном экране (ядро видения).
+            Слева и в одну строку со статусом: по центру они съедали полосу экрана. */}
+        <div className="flex items-center gap-3 mb-1.5 flex-wrap">
+          <div className="inline-flex border border-line bg-panel">
             <button
               onClick={() => switchTab('crypto')}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${tab === 'crypto' ? 'bg-brand-soft text-brand-ink' : 'text-soft hover:text-ink'}`}
+              className={`px-3.5 py-1 text-[13px] font-semibold transition ${tab === 'crypto' ? 'bg-brand text-white' : 'text-soft hover:text-ink'}`}
             >
               {t('tabCrypto')}
             </button>
             <button
               onClick={() => switchTab('stocks')}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${tab === 'stocks' ? 'bg-brand-soft text-brand-ink' : 'text-soft hover:text-ink'}`}
+              className={`px-3.5 py-1 text-[13px] font-semibold transition ${tab === 'stocks' ? 'bg-brand text-white' : 'text-soft hover:text-ink'}`}
             >
               {t('tabStocks')}
             </button>
           </div>
+          {updatedAt && !error && (
+            <span className="text-[11px] text-faint tnum">{statusLine}</span>
+          )}
+          {updatedAt && !error && !refresh && (
+            <button onClick={() => { setLoading(true); load() }} className="inline-flex items-center gap-1 text-[11px] text-brand-ink hover:underline">
+              <Icon name="refresh" size={12} /> {t('refreshNow')}
+            </button>
+          )}
         </div>
 
         {/* Статус рынка акций + пояснение про задержку данных */}
@@ -318,17 +319,6 @@ export default function Feed() {
           </div>
         )}
 
-        {updatedAt && !error && (
-          <div className="flex items-center justify-center gap-3 text-xs text-soft mb-4">
-            <span className="tnum">{statusLine}</span>
-            {!refresh && (
-              <button onClick={() => { setLoading(true); load() }} className="inline-flex items-center gap-1 text-brand-ink hover:underline">
-                <Icon name="refresh" size={13} /> {t('refreshNow')}
-              </button>
-            )}
-          </div>
-        )}
-
         {error && coins.length === 0 && (
           <div className="card rounded-xl p-5 text-center text-sm">
             <div className="text-down font-medium mb-1">{t('errorTitle')}</div>
@@ -351,48 +341,49 @@ export default function Feed() {
         {showHero && coins.length > 0 && <NowMoving coins={coins} />}
 
         {/* Быстрый доступ к функциям — на виду, а не спрятаны в меню */}
-        {coins.length > 0 && !query && (
-          <div className="flex gap-2 overflow-x-auto pb-2 mb-3 -mx-4 px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <button onClick={() => ui.openPortfolio()} className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-panel border border-line text-[13px] font-medium text-ink hover:border-brand/50 hover:text-brand-ink transition">
-              <Icon name="coins" size={15} className="text-brand-ink" /> {t('portfolioTitle')}
-            </button>
-            <button onClick={() => ui.openConverter()} className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-panel border border-line text-[13px] font-medium text-ink hover:border-brand/50 hover:text-brand-ink transition">
-              <Icon name="swap" size={15} className="text-brand-ink" /> {t('convTitle')}
-            </button>
-            <button onClick={() => navigate('/heatmap')} className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-panel border border-line text-[13px] font-medium text-ink hover:border-brand/50 hover:text-brand-ink transition">
-              <Icon name="grid" size={15} className="text-brand-ink" /> {t('heatmapTitle')}
-            </button>
-            <button onClick={() => navigate('/compare')} className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-panel border border-line text-[13px] font-medium text-ink hover:border-brand/50 hover:text-brand-ink transition">
-              <Icon name="compare" size={15} className="text-brand-ink" /> {t('toolCompare')}
-            </button>
-            <button onClick={() => ui.openAlerts()} className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-panel border border-line text-[13px] font-medium text-ink hover:border-brand/50 hover:text-brand-ink transition">
-              <Icon name="bell" size={15} className="text-brand-ink" /> {t('myAlerts')}
-            </button>
-          </div>
-        )}
-
-        {/* Заголовок ленты — даёт структуру вместо разрозненных элементов */}
+        {/* Инструменты и заголовок ленты одной полосой: раньше это были два ряда
+            крупных чипов, которые вместе съедали ещё треть первого экрана. */}
         {coins.length > 0 && (
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-[15px] font-semibold flex items-center gap-2">
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+            <h2 className="text-[13px] font-semibold flex items-center gap-1.5 mr-auto">
               {onlyFav ? t('favorites') : view === 'gainers' ? t('topGainers') : view === 'losers' ? t('topLosers') : tab === 'stocks' ? t('tabStocks') : t('allCoins')}
-              <span className="text-faint text-xs font-normal tnum">{visible.length}</span>
+              <span className="text-faint text-[11px] font-normal tnum">{visible.length}</span>
             </h2>
-            {/* Переключатель вида: таблица (компакт) / карточки (подробно) */}
-            <div className="flex rounded-lg border border-line overflow-hidden">
+
+            {!query && (
+              <div className="flex overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {[
+                  ['coins', t('portfolioTitle'), () => ui.openPortfolio()],
+                  ['swap', t('convTitle'), () => ui.openConverter()],
+                  ['grid', t('heatmapTitle'), () => navigate('/heatmap')],
+                  ['compare', t('toolCompare'), () => navigate('/compare')],
+                  ['bell', t('myAlerts'), () => ui.openAlerts()],
+                ].map(([icon, label, onClick]) => (
+                  <button
+                    key={label}
+                    onClick={onClick}
+                    className="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 border border-line -ml-px bg-panel text-[11px] font-medium text-soft hover:text-ink hover:border-line-strong transition"
+                  >
+                    <Icon name={icon} size={13} /> {label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="flex border border-line overflow-hidden">
               <button
                 onClick={() => switchView('compact')}
                 aria-label="list"
-                className={`px-2.5 py-1.5 ${viewMode === 'compact' ? 'bg-brand-soft text-brand-ink' : 'bg-panel text-faint hover:text-soft'}`}
+                className={`px-2 py-1 ${viewMode === 'compact' ? 'bg-brand text-white' : 'bg-panel text-faint hover:text-soft'}`}
               >
-                <Icon name="bars" size={14} />
+                <Icon name="bars" size={13} />
               </button>
               <button
                 onClick={() => switchView('cards')}
                 aria-label="cards"
-                className={`px-2.5 py-1.5 ${viewMode === 'cards' ? 'bg-brand-soft text-brand-ink' : 'bg-panel text-faint hover:text-soft'}`}
+                className={`px-2 py-1 ${viewMode === 'cards' ? 'bg-brand text-white' : 'bg-panel text-faint hover:text-soft'}`}
               >
-                <Icon name="grid" size={14} />
+                <Icon name="grid" size={13} />
               </button>
             </div>
           </div>
@@ -413,15 +404,17 @@ export default function Feed() {
         {viewMode === 'compact' ? (
           /* Табличный вид: вся инфа сканируется глазом, как у больших трекеров */
           <div className="card rounded-2xl overflow-hidden">
-            <div className="hidden sm:grid items-center gap-2 px-3 py-2 border-b border-line text-[10px] uppercase tracking-wide text-faint
-                            sm:grid-cols-[36px_minmax(0,1.4fr)_auto_76px_76px_90px_96px_34px]">
+            <div className="hidden sm:grid items-center gap-2 px-3 py-1.5 border-b border-line text-[10px] uppercase tracking-wider text-faint
+                            sm:grid-cols-[30px_minmax(0,1.3fr)_auto_60px_66px_66px_78px_84px_76px_30px]">
               <span>#</span>
               <span>{t('convPickCoin')}</span>
               <span className="text-right justify-self-end">$</span>
+              <span className="text-right">{t('lblHour')}</span>
               <span className="text-right">{t('lblDay')}</span>
               <span className="text-right">{t('lblWeek')}</span>
-              <span className="text-right">{t('lblCap')}</span>
-              <span>7d</span>
+              <span className="text-right truncate">{t('lblVol')}</span>
+              <span className="text-right truncate">{t('lblCap')}</span>
+              <span className="text-right">{t('lblWeek')}</span>
               <span />
             </div>
             {visible.map((coin) => (

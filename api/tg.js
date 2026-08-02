@@ -21,11 +21,11 @@ async function tg(method, token, payload) {
 // Кнопки: приложение открывается ВНУТРИ Telegram (web_app), канал — обычной ссылкой
 const mainButtons = {
   inline_keyboard: [
-    [{ text: '🌊 Открыть TideWatch', web_app: { url: SITE } }],
-    [{ text: '📢 Наш канал', url: CHANNEL }],
+    [{ text: 'Открыть TideWatch', web_app: { url: SITE } }],
+    [{ text: 'Наш канал', url: CHANNEL }],
   ],
 }
-const siteOnly = { inline_keyboard: [[{ text: '🌊 Открыть TideWatch', web_app: { url: SITE } }]] }
+const siteOnly = { inline_keyboard: [[{ text: 'Открыть TideWatch', web_app: { url: SITE } }]] }
 
 const fmtPct = (n) => (n == null ? '—' : `${n > 0 ? '+' : ''}${n.toFixed(2)}%`)
 const arrow = (n) => (n == null ? '•' : n >= 0 ? '▲' : '▼')
@@ -148,7 +148,7 @@ export default async function handler(req, res) {
         '📰 Свежие крипто-новости своими словами\n' +
         '🌊 Новости продукта и обновления\n\n' +
         'Подписывайся 👇'
-      buttons = { inline_keyboard: [[{ text: '📢 Подписаться на канал', url: CHANNEL }], [{ text: '🌊 Открыть TideWatch', web_app: { url: SITE } }]] }
+      buttons = { inline_keyboard: [[{ text: '📢 Подписаться на канал', url: CHANNEL }], [{ text: 'Открыть TideWatch', web_app: { url: SITE } }]] }
     } else if (cmd === '/market') {
       reply = await cmdMarket()
     } else if (cmd === '/top') {

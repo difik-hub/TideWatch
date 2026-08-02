@@ -16,50 +16,65 @@
   --color-up: var(--up);
   --color-down: var(--down);
 
-  --font-sans: "Geist", "Segoe UI", system-ui, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, "SF Mono", monospace;
-  --font-display: "Space Grotesk", "Geist", system-ui, sans-serif;
+  /* Archivo — плотный гротеск с узкими апертурами: держит мелкий кегль в таблицах
+     и даёт вес в заголовках. IBM Plex Mono на все цифры: инженерный рисунок,
+     ровные табличные знаки, читается на строке высотой 28px. */
+  --font-sans: "Archivo", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+  --font-display: "Archivo", "Segoe UI", system-ui, sans-serif;
+
+  /* Направление «Сигнал»: прямые углы везде. Радиусы обнулены на уровне темы,
+     поэтому все rounded-* в разметке гаснут разом — переписывать классы не нужно.
+     rounded-full не отсюда (calc(infinity)), логотипы монет остаются круглыми. */
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
 }
 
-/* Тёмная тема (по умолчанию) — холодный off-black, сталь, приглушённый сине-стальной акцент */
+/* Тёмная тема (по умолчанию) — нейтральный графит, сигнальный оранжевый на действиях */
 :root,
 [data-theme="dark"] {
-  --bg: #0b0e14;
-  --panel: #141823;
-  --panel2: #1b2030;
-  --line: rgba(255, 255, 255, 0.07);
-  --line-strong: rgba(255, 255, 255, 0.12);
-  --ink: #e7eaf2;
-  --soft: #8b93a7;
-  --faint: #5b6479;
-  --brand: #4789e6;
-  --brand-ink: #6fa6f2;
-  --brand-soft: rgba(71, 137, 230, 0.14);
-  --up: #3fb27f;
-  --down: #e0606f;
-  --shadow: 0 18px 40px -24px rgba(8, 12, 24, 0.9);
-  --grain-opacity: 0.035;
-  --blob-opacity: 0.30;
+  --bg: #0c0c0d;
+  --panel: #131315;
+  --panel2: #1a1a1d;
+  --line: rgba(255, 255, 255, 0.09);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --ink: #f4f4f5;
+  --soft: #9a9aa2;
+  --faint: #6b6b73;
+  --brand: #ff5a1f;
+  --brand-ink: #ff7a45;
+  --brand-soft: rgba(255, 90, 31, 0.12);
+  --up: #2fbf6b;
+  --down: #e5484d;
+  --shadow: 0 18px 40px -28px rgba(0, 0, 0, 0.9);
+  --grain-opacity: 0.028;
+  --blob-opacity: 0.16;
 }
 
-/* Светлая тема — холодный off-white, более тёмный акцент для контраста */
+/* Светлая тема — тёплый off-white; акцент темнее, иначе оранжевый не проходит по контрасту */
 [data-theme="light"] {
-  --bg: #f5f7fa;
+  --bg: #faf9f8;
   --panel: #ffffff;
-  --panel2: #eef1f6;
-  --line: rgba(15, 23, 42, 0.08);
-  --line-strong: rgba(15, 23, 42, 0.14);
-  --ink: #131a28;
-  --soft: #5a6478;
-  --faint: #97a0b4;
-  --brand: #1f63d6;
-  --brand-ink: #1a56bd;
-  --brand-soft: rgba(31, 99, 214, 0.10);
-  --up: #15945c;
-  --down: #d23f53;
-  --shadow: 0 16px 36px -26px rgba(20, 30, 60, 0.35);
-  --grain-opacity: 0.02;
-  --blob-opacity: 0.16;
+  --panel2: #f2f1ef;
+  --line: rgba(12, 12, 13, 0.10);
+  --line-strong: rgba(12, 12, 13, 0.18);
+  --ink: #131315;
+  --soft: #5c5c63;
+  --faint: #8b8b93;
+  --brand: #d93a00;
+  --brand-ink: #b83100;
+  --brand-soft: rgba(217, 58, 0, 0.09);
+  --up: #16874c;
+  --down: #c8232b;
+  --shadow: 0 16px 36px -28px rgba(12, 12, 13, 0.3);
+  --grain-opacity: 0.018;
+  --blob-opacity: 0.08;
 }
 
 /* Ширина боковых рекламных баннеров — растёт с шириной экрана */
@@ -102,7 +117,6 @@ body {
   background-color: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-feature-settings: "cv11", "ss01";
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -134,7 +148,7 @@ body::before {
 /* Скроллбар в тон акценту */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 8px; }
+::-webkit-scrollbar-thumb { background: var(--line-strong); }
 ::-webkit-scrollbar-thumb:hover { background: var(--soft); }
 
 /* Каскадное появление элементов */
@@ -185,7 +199,6 @@ body::before {
 *:focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: 2px;
-  border-radius: 6px;
 }
 
 /* Slide-over панель настроек */
@@ -208,16 +221,17 @@ body::before {
 }
 .page { animation: page-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-/* Wordmark в шапке — выразительный дисплейный шрифт */
+/* Wordmark в шапке — плотный гротеск, один цвет. Акцент забирает знак слева,
+   поэтому красить часть слова в оранжевый больше не нужно. */
 .wordmark {
   font-family: var(--font-display);
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   line-height: 1;
-  font-size: clamp(20px, 2.4vw, 27px);
+  font-size: clamp(19px, 2.2vw, 25px);
   white-space: nowrap;
+  color: var(--ink);
 }
-.wordmark .wm-accent { color: var(--brand-ink); }
 
 @media (prefers-reduced-motion: reduce) {
   .page { animation: none; }

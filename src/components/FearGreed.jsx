@@ -20,15 +20,17 @@ export default function FearGreed({ compact = false }) {
   const bandKey = v < 25 ? 'fngExtremeFear' : v < 45 ? 'fngFear' : v < 55 ? 'fngNeutral' : v < 75 ? 'fngGreed' : 'fngExtremeGreed'
   const color = v < 25 ? '#f6465d' : v < 45 ? '#f0913a' : v < 55 ? '#e6c84f' : v < 75 ? '#7cc86a' : '#16c784'
 
-  // Компактный вариант — мини-плитка в общую панель метрик Hero
+  // Компактный вариант — ячейка полосы метрик. Габариты совпадают с Metric в Hero,
+  // иначе полоса растягивается по самой высокой ячейке.
   if (compact) {
     return (
-      <div className="px-4 py-3.5">
-        <div className="text-[11px] uppercase tracking-wide text-faint flex items-center gap-1.5">
+      <div className="px-3 py-1.5 border-r border-line last:border-r-0 min-w-0">
+        <div className="text-[9px] uppercase tracking-[0.12em] text-faint flex items-center gap-1 truncate">
           {t('fngTitle')}<InfoTip text={t('tipFng')} />
         </div>
-        <div className="text-lg font-semibold mt-1 tnum" style={{ color }}>{v}</div>
-        <div className="text-[11px] mt-0.5" style={{ color }}>{t(bandKey)}</div>
+        <div className="text-[13px] font-semibold tnum leading-tight flex items-baseline gap-1.5" style={{ color }}>
+          {v}<span className="text-[10px] font-normal">{t(bandKey)}</span>
+        </div>
       </div>
     )
   }

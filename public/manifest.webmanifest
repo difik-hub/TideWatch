@@ -1,16 +1,16 @@
 {
-  "name": "TideWatch — крипторынок в реальном времени",
+  "name": "TideWatch — крипта и акции в одном портфеле",
   "short_name": "TideWatch",
-  "description": "Курсы, динамика и графики криптовалют в реальном времени.",
+  "description": "Курсы криптовалют и акций США в реальном времени, смешанный портфель и алерты на цену.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0b0e14",
-  "theme_color": "#0b0e14",
+  "background_color": "#0c0c0d",
+  "theme_color": "#0c0c0d",
   "icons": [
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
-    { "src": "/wave.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    { "src": "/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/mark.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
   ]
 }

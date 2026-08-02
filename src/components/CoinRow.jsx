@@ -26,6 +26,7 @@ function CoinRow({ coin, isFav, onToggleFav, rates, livePrice = null }) {
   const { currency } = useSettings()
   const t = useT()
 
+  const d1 = coin.price_change_percentage_1h_in_currency
   const d24 = coin.price_change_percentage_24h_in_currency ?? coin.price_change_percentage_24h
   const d7 = coin.price_change_percentage_7d_in_currency
   const spark = coin.sparkline_in_7d?.price
@@ -44,19 +45,19 @@ function CoinRow({ coin, isFav, onToggleFav, rates, livePrice = null }) {
   return (
     <Link
       to={coin.href ?? `/coin/${coin.id}`}
-      className="grid items-center gap-2 px-3 py-2.5 border-b border-line last:border-0 hover:bg-panel2/60 transition
-                 grid-cols-[28px_minmax(0,1fr)_auto_72px_34px]
-                 sm:grid-cols-[36px_minmax(0,1.4fr)_auto_76px_76px_90px_96px_34px]"
+      className="grid items-center gap-2 px-3 py-1.5 border-b border-line last:border-0 hover:bg-panel2/60 transition
+                 grid-cols-[24px_minmax(0,1fr)_auto_64px_30px]
+                 sm:grid-cols-[30px_minmax(0,1.3fr)_auto_60px_66px_66px_78px_84px_76px_30px]"
     >
       {/* Ранг */}
       <span className="text-faint text-[11px] tnum">{coin.market_cap_rank}</span>
 
       {/* Монета */}
       <span className="flex items-center gap-2 min-w-0">
-        <TickerLogo src={coin.image} symbol={coin.symbol} size={24} />
-        <span className="min-w-0">
-          <span className="block text-[13px] font-medium truncate leading-tight">{coin.name}</span>
-          <span className="block text-[10px] text-faint uppercase tnum leading-tight">{coin.symbol}</span>
+        <TickerLogo src={coin.image} symbol={coin.symbol} size={20} />
+        <span className="min-w-0 flex items-baseline gap-1.5">
+          <span className="text-[13px] font-semibold uppercase tnum leading-tight">{coin.symbol}</span>
+          <span className="text-[11px] text-faint truncate leading-tight">{coin.name}</span>
         </span>
       </span>
 
@@ -67,18 +68,24 @@ function CoinRow({ coin, isFav, onToggleFav, rates, livePrice = null }) {
         className="text-[13px] font-semibold tnum text-right justify-self-end"
       />
 
+      {/* 1ч — только на десктопе */}
+      <span className="text-right hidden sm:block"><Pct value={d1} /></span>
+
       {/* 24ч */}
       <span className="text-right"><Pct value={d24} /></span>
 
       {/* 7д — только на десктопе */}
       <span className="text-right hidden sm:block"><Pct value={d7} /></span>
 
+      {/* Объём за сутки — только на десктопе */}
+      <span className="text-right hidden sm:block text-[12px] text-soft tnum">{formatBig(coin.total_volume, currency)}</span>
+
       {/* Капа — только на десктопе */}
       <span className="text-right hidden sm:block text-[12px] text-soft tnum">{formatBig(coin.market_cap, currency)}</span>
 
       {/* Спарклайн — только на десктопе */}
       <span className="hidden sm:block opacity-80">
-        <Sparkline data={spark} width={90} height={28} fluid={false} color={up ? 'var(--up)' : 'var(--down)'} />
+        <Sparkline data={spark} width={72} height={22} fluid={false} color={up ? 'var(--up)' : 'var(--down)'} />
       </span>
 
       {/* Избранное */}

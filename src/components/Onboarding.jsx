@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import Icon from './Icon'
 import { useT } from '../i18n/useT'
 
 const KEY = 'tidewatch:onboarded'
@@ -15,18 +14,17 @@ export default function Onboarding() {
     setHidden(true)
   }
 
+  // Одна строка вместо панели: подсказка нужна ровно один раз и не должна
+  // отодвигать ленту вниз. Акцентом красим только кнопку, не всю плашку.
   return (
-    <div className="rise-in mb-4 rounded-2xl border border-brand/25 bg-brand-soft/60 p-4 flex items-start gap-3">
-      <span className="grid place-items-center w-8 h-8 rounded-xl bg-brand text-white shrink-0">
-        <Icon name="wave" size={17} />
+    <div className="mb-1.5 border border-line bg-panel px-3 py-1.5 flex items-center gap-2.5 text-[12px]">
+      <span className="text-soft min-w-0 flex-1 truncate">
+        <span className="text-ink font-semibold mr-1.5">{t('onbTitle')}</span>
+        {t('onbText')}
       </span>
-      <div className="flex-1 min-w-0">
-        <div className="text-sm font-semibold">{t('onbTitle')}</div>
-        <p className="text-[13px] text-soft mt-0.5 leading-relaxed">{t('onbText')}</p>
-      </div>
       <button
         onClick={dismiss}
-        className="shrink-0 px-3 py-1.5 rounded-lg bg-brand text-white text-[13px] font-medium hover:opacity-90 transition"
+        className="shrink-0 px-2.5 py-1 border border-line text-soft hover:text-ink hover:border-line-strong transition text-[11px] font-medium"
       >
         {t('onbGot')}
       </button>

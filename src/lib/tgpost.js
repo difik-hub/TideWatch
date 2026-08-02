@@ -68,7 +68,7 @@ export function buildPostText(p, fallbackTitle) {
 export async function postNews(token, channel, item, site) {
   const p = await rewrite(item.title, cut(item.summary, 320))
   const text = buildPostText(p, item.title)
-  const btn = { inline_keyboard: [[{ text: '🌊 TideWatch', url: site }]] }
+  const btn = { inline_keyboard: [[{ text: 'TideWatch', url: site }]] }
   let out
   if (item.image) {
     out = await tg('sendPhoto', token, { chat_id: channel, photo: item.image, caption: cut(text, 1020), parse_mode: 'HTML', reply_markup: btn })

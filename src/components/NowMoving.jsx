@@ -19,14 +19,15 @@ export default function NowMoving({ coins }) {
 
   if (movers.length < 4) return null
 
+  // Строка-тикер вместо ряда карточек: та же информация занимает 28 пикселей
+  // вместо блока в треть экрана, поэтому лента начинается сразу под ней.
   return (
-    <section className="mb-6">
-      <h2 className="text-[13px] font-semibold text-soft uppercase tracking-wide mb-2.5 flex items-center gap-2">
-        <span className="w-1.5 h-1.5 rounded-full bg-up pulse-dot" />
+    <div className="flex items-stretch border border-line bg-panel mb-1.5 overflow-hidden">
+      <span className="hidden sm:flex items-center gap-1.5 px-2.5 text-[9px] uppercase tracking-[0.12em] text-faint border-r border-line shrink-0">
+        <span className="w-1 h-1 rounded-full bg-up pulse-dot" />
         {t('nowMoving')}
-        <span className="text-faint normal-case font-normal">· {t('movingHint')}</span>
-      </h2>
-      <div className="flex gap-2.5 overflow-x-auto pb-2 -mx-4 px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      </span>
+      <div className="flex gap-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {movers.map((c) => {
           const d = c.price_change_percentage_1h_in_currency
           const tr = trendOf(d)
@@ -34,20 +35,18 @@ export default function NowMoving({ coins }) {
             <Link
               key={c.id}
               to={`/coin/${c.id}`}
-              className="card-link shrink-0 w-36 rounded-xl p-3"
+              className="shrink-0 flex items-center gap-1.5 px-2.5 py-1 border-r border-line hover:bg-panel2 transition"
             >
-              <div className="flex items-center gap-2">
-                <img src={c.image} alt="" className="w-6 h-6 rounded-full" loading="lazy" />
-                <span className="text-[12px] font-medium uppercase tnum truncate">{c.symbol}</span>
-              </div>
-              <div className="mt-2 text-[14px] font-semibold tnum">{formatPrice(c.current_price, currency)}</div>
-              <div className={`mt-0.5 text-[12px] font-medium tnum inline-flex items-center gap-0.5 ${tr === 'rise' ? 'text-up' : tr === 'fall' ? 'text-down' : 'text-soft'}`}>
-                <TrendArrow dir={tr} size={8} /> {formatPct(d)} · 1ч
-              </div>
+              <img src={c.image} alt="" className="w-4 h-4 rounded-full" loading="lazy" />
+              <span className="text-[11px] font-semibold uppercase tnum">{c.symbol}</span>
+              <span className="text-[11px] text-soft tnum">{formatPrice(c.current_price, currency)}</span>
+              <span className={`text-[11px] font-medium tnum inline-flex items-center gap-0.5 ${tr === 'rise' ? 'text-up' : tr === 'fall' ? 'text-down' : 'text-soft'}`}>
+                <TrendArrow dir={tr} size={7} />{formatPct(d)}
+              </span>
             </Link>
           )
         })}
       </div>
-    </section>
+    </div>
   )
 }
