@@ -43,7 +43,7 @@ export default function News() {
     <div className="min-h-[100dvh] page">
       <Nav />
       <main className="max-w-3xl mx-auto px-4 py-5">
-        <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-soft hover:text-ink mb-5">
+        <Link to="/markets" className="inline-flex items-center gap-1.5 text-sm text-soft hover:text-ink mb-5">
           <Icon name="back" size={16} /> {t('back')}
         </Link>
 

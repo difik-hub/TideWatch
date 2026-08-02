@@ -231,7 +231,7 @@ export default function CoinPage() {
               >
                 <Icon name="refresh" size={15} /> {t('retry')}
               </button>
-              <Link to="/" className="px-4 py-2 rounded-lg bg-panel2 text-soft text-sm hover:text-ink transition inline-flex items-center gap-1.5">
+              <Link to="/markets" className="px-4 py-2 rounded-lg bg-panel2 text-soft text-sm hover:text-ink transition inline-flex items-center gap-1.5">
                 <Icon name="back" size={15} /> {t('back')}
               </Link>
             </div>
@@ -257,7 +257,7 @@ export default function CoinPage() {
       <Nav />
 
       <main className="max-w-2xl mx-auto px-4 py-5">
-        <Link to="/" className="inline-flex items-center gap-1 text-soft hover:text-ink text-sm mb-5 transition">
+        <Link to="/markets" className="inline-flex items-center gap-1 text-soft hover:text-ink text-sm mb-5 transition">
           <Icon name="back" size={16} /> {t('back')}
         </Link>
 

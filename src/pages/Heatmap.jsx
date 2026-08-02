@@ -107,7 +107,7 @@ export default function Heatmap() {
     <div className="min-h-[100dvh] page">
       <Nav />
       <main className="max-w-5xl mx-auto px-4 py-6">
-        <Link to="/" className="inline-flex items-center gap-1 text-soft hover:text-ink text-sm mb-4 transition">
+        <Link to="/markets" className="inline-flex items-center gap-1 text-soft hover:text-ink text-sm mb-4 transition">
           <Icon name="back" size={16} /> {t('back')}
         </Link>
 

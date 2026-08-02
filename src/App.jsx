@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import Overview from './pages/Overview'
 import Feed from './pages/Feed'
 import CoinPage from './pages/CoinPage'
 import StockPage from './pages/StockPage'
@@ -29,7 +30,10 @@ export default function App() {
   return (
     <UIProvider>
       <Routes>
-        <Route path="/" element={<Feed />} />
+        {/* Главная — капитал пользователя, а не лента: лента живёт на /markets.
+            Старые ссылки на «/» со вкладкой акций перенаправляем туда же. */}
+        <Route path="/" element={<Overview />} />
+        <Route path="/markets" element={<Feed />} />
         <Route path="/coin/:id" element={<CoinPage />} />
         <Route path="/stock/:sym" element={<StockPage />} />
         <Route path="/news" element={<News />} />

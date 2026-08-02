@@ -81,9 +81,10 @@ export default function Nav({ children }) {
       bg: 'color-mix(in oklab, var(--brand) 16%, transparent)',
       fg: 'var(--ink)',
       links: [
+        { label: t('allCoins'), onClick: () => navigate('/markets') },
         { label: t('newsTitle'), onClick: () => navigate('/news') },
-        { label: t('topGainers'), onClick: () => navigate('/?view=gainers') },
-        { label: t('topLosers'), onClick: () => navigate('/?view=losers') },
+        { label: t('topGainers'), onClick: () => navigate('/markets?view=gainers') },
+        { label: t('topLosers'), onClick: () => navigate('/markets?view=losers') },
         { label: t('heatmapTitle'), onClick: () => navigate('/heatmap') },
         { label: t('toolCompare'), onClick: () => navigate('/compare') },
         { label: t('toolConverter'), onClick: () => openConverter() },
