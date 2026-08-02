@@ -65,9 +65,10 @@ export default async function handler(req, res) {
     const item = queue[0]
     const ok = await postNews(token, channel, item, SITE)
     if (!ok) { res.status(502).json({ error: 'telegram send failed' }); return }
-    await markPosted(item.url)
-
-    res.status(200).json({ ok: true, posted: 1, queueLeft: queue.length - 1, title: item.title.slice(0, 60) })
+    // Если пометка не записалась — следующий пинг перепостит то же самое.
+    // Отдаём 500, чтобы сбой был виден в дашборде cron-job.org, а не молчал.
+    const marked = await markPosted(item.url)
+    res.status(marked ? 200 : 500).json({ ok: marked, posted: 1, marked, queueLeft: queue.length - 1, title: item.title.slice(0, 60) })
   } catch (e) {
     res.status(500).json({ error: String(e).slice(0, 140) })
   }

@@ -36,12 +36,16 @@ export async function lastPostedAt() {
   return rows[0]?.posted_at ? new Date(rows[0].posted_at).getTime() : 0
 }
 
-// Отметить новость как опубликованную
+// Отметить новость как опубликованную. ВАЖНО: upsert со свежим posted_at.
+// ignore-duplicates здесь был бы тихим no-op для URL, который уже есть в таблице
+// со старой датой (Cointelegraph перепубликует рубрику "what happened in crypto
+// today" под ОДНИМ URL каждый день) → posted_at не обновлялся → интервал и дедуп
+// не видели пост → бот зацикливался на одной новости каждые 10 минут.
 export async function markPosted(articleUrl) {
   const r = await fetch(`${URL_BASE}/rest/v1/posted_news`, {
     method: 'POST',
-    headers: { ...headers(), Prefer: 'resolution=ignore-duplicates' },
-    body: JSON.stringify({ url: articleUrl }),
+    headers: { ...headers(), Prefer: 'resolution=merge-duplicates' },
+    body: JSON.stringify({ url: articleUrl, posted_at: new Date().toISOString() }),
   })
   return r.ok
 }
