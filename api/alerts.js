@@ -5,10 +5,13 @@
 // нет намеренно, иначе половина людей отвалится на форме. Токен лежит у человека
 // в localStorage, знать его может только он.
 //
-// GET  /api/alerts?a=status&token=…  → { linked, chatLinked, alerts: [...] }
-// POST /api/alerts?a=init            → завести токен перед переходом в бота
-// POST /api/alerts?a=add             → добавить правило
-// POST /api/alerts?a=del             → снять правило
+// Токен ходит ТОЛЬКО телом POST: в query он оседал бы в логах Vercel, в реферере
+// и в истории браузера, то есть ключ от чужих алертов утекал бы сам собой.
+//
+// POST /api/alerts?a=status → { chatLinked, alerts: [...] }
+// POST /api/alerts?a=init   → завести токен перед переходом в бота
+// POST /api/alerts?a=add    → добавить правило
+// POST /api/alerts?a=del    → снять правило
 
 import { allow } from './_ratelimit.js'
 import { hasStore, validToken, createSub, getSub, listAlerts, addAlert, deleteAlert } from '../src/lib/alertStore.js'
@@ -21,15 +24,17 @@ export default async function handler(req, res) {
   if (!(await allow(req, 'alerts', 60, 60))) { res.status(429).json({ error: 'rate limited' }); return }
   if (!hasStore()) { res.status(503).json({ error: 'store not configured' }); return }
 
+  if (req.method !== 'POST') { res.status(405).json({ error: 'POST only' }); return }
+
   const u = new URL(req.url, 'http://localhost')
   const action = u.searchParams.get('a') || 'status'
   const body = typeof req.body === 'string' ? safeParse(req.body) : (req.body || {})
-  const token = String(u.searchParams.get('token') || body.token || '')
+  const token = String(body.token || '')
 
   if (!validToken(token)) { res.status(400).json({ error: 'bad token' }); return }
 
   try {
-    if (req.method === 'GET' || action === 'status') {
+    if (action === 'status') {
       const sub = await getSub(token)
       if (!sub) { res.status(200).json({ known: false, chatLinked: false, alerts: [] }); return }
       const alerts = (await listAlerts(token)) ?? []

@@ -42,13 +42,19 @@ export async function getSub(token) {
   return rows[0] ?? null
 }
 
-// Привязать чат к токену — вызывается ботом на /start <токен>
+// Привязать чат к токену — вызывается ботом на /start <токен>.
+// Условие `chat_id is null или тот же чат` в фильтре: иначе подсмотренным токеном
+// можно было бы переписать чужую связку на свой чат и увести все алерты.
+// Повторный /start из того же чата остаётся безобидным.
 export async function linkChat(token, chatId) {
+  const id = Number(chatId)
+  if (!Number.isFinite(id)) return false
   const url = `${URL_BASE}/rest/v1/tg_subs?token=eq.${encodeURIComponent(token)}`
+    + `&or=(chat_id.is.null,chat_id.eq.${id})`
   const r = await fetch(url, {
     method: 'PATCH',
     headers: headers({ Prefer: 'return=representation' }),
-    body: JSON.stringify({ chat_id: chatId, linked_at: new Date().toISOString() }),
+    body: JSON.stringify({ chat_id: id, linked_at: new Date().toISOString() }),
   })
   if (!r.ok) return false
   const rows = await r.json()

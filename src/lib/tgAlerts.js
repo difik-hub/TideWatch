@@ -26,13 +26,14 @@ async function call(action, payload) {
   return { ok: r.ok, status: r.status, data: await r.json().catch(() => ({})) }
 }
 
-// Состояние связки и список серверных алертов
+// Состояние связки и список серверных алертов.
+// Токен уходит только телом запроса: в адресной строке он осел бы в логах
+// сервера, в реферере и в истории браузера, а это ключ ко всем алертам.
 export async function fetchStatus() {
   try {
-    const r = await fetch(`/api/alerts?a=status&token=${encodeURIComponent(getToken())}`)
-    if (!r.ok) return { chatLinked: false, alerts: [], available: r.status !== 503 }
-    const d = await r.json()
-    return { chatLinked: !!d.chatLinked, alerts: d.alerts || [], available: true }
+    const { ok, status, data } = await call('status', {})
+    if (!ok) return { chatLinked: false, alerts: [], available: status !== 503 }
+    return { chatLinked: !!data.chatLinked, alerts: data.alerts || [], available: true }
   } catch {
     return { chatLinked: false, alerts: [], available: false }
   }
