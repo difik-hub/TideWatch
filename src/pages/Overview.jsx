@@ -54,12 +54,18 @@ export default function Overview() {
   const [global, setGlobal] = useState(null)
   const [holdings, setHoldings] = useState(() => getPortfolio())
   const [live, setLive] = useState(() => new Map())
+  const [news, setNews] = useState([])
 
   useEffect(() => {
     fetchMarkets(100, 1, currency).then(setCoins).catch(() => {})
     fetchStocks().then(setStocks).catch(() => {})
     fetchRates().then(setRates).catch(() => {})
     fetchGlobal().then(setGlobal).catch(() => {})
+    // Новости кешируются на edge, поэтому запрос дешёвый даже на каждый заход
+    fetch('/api/news')
+      .then((r) => r.json())
+      .then((d) => setNews((d.results || []).slice(0, 5)))
+      .catch(() => {})
   }, [currency])
 
   // Портфель мог измениться в панели или на странице актива
@@ -216,6 +222,29 @@ export default function Overview() {
                 {t('marketNow')}
               </div>
               <p className="px-3 py-2 text-[13px] leading-relaxed text-soft">{summary}</p>
+            </section>
+          )}
+
+          {news.length > 0 && (
+            <section className="border border-line bg-panel">
+              <div className="px-3 py-1.5 border-b border-line text-[10px] uppercase tracking-[0.14em] text-faint flex justify-between">
+                <span>{t('newsMarket')}</span>
+                <Link to="/news" className="text-brand-ink hover:underline">{t('ovAll')}</Link>
+              </div>
+              {news.map((n) => (
+                <a
+                  key={n.url}
+                  href={n.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block px-3 py-1.5 border-b border-line last:border-b-0 hover:bg-panel2 transition"
+                >
+                  <span className="block text-[13px] leading-snug">{n.title}</span>
+                  <span className="block text-[10px] text-faint tnum mt-0.5">
+                    {n.source_name} · {new Date(n.published_at).toLocaleString(undefined, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </a>
+              ))}
             </section>
           )}
         </main>
