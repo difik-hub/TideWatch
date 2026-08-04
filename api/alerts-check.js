@@ -70,7 +70,11 @@ export default async function handler(req, res) {
   const given = req.headers.authorization || ''
   const authed = (own && given === `Bearer ${own}`) || (shared && given === `Bearer ${shared}`)
 
-  if (!authed && !(await allow(req, 'alerts-check', 3, 60))) {
+  // Без ключа — жёсткий лимит: два вызова за пять минут с адреса. Планировщику
+  // этого хватает (он ходит раз в пять минут), а частым вызовам взяться неоткуда.
+  // Дороже всего именно частота: каждый прогон с непустой очередью тратит квоты
+  // CoinGecko и FMP, и без потолка ими можно выжечь дневной лимит.
+  if (!authed && !(await allow(req, 'alerts-check', 2, 300))) {
     res.status(429).json({ error: 'rate limited' }); return
   }
 
