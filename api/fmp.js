@@ -95,6 +95,11 @@ export default async function handler(req, res) {
       }
       const found = Object.keys(out).length
       res.setHeader('Cache-Control', `s-maxage=${found ? long : 60}, stale-while-revalidate=86400`)
+      if (u.searchParams.get('debug') === '1') {
+        const probe = await fmp('earnings', { symbol: symbols[0], limit: '8' }, key).catch((e) => ({ threw: String(e).slice(0, 120) }))
+        res.status(200).json({ calendar: out, debug: { symbols, today, probeType: Array.isArray(probe) ? `array:${probe.length}` : typeof probe, probe: Array.isArray(probe) ? probe.slice(0, 2) : probe } })
+        return
+      }
       res.status(200).json({ calendar: out })
       return
     }
