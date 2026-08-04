@@ -11,8 +11,12 @@ import Onboarding from '../components/Onboarding'
 import CrossMarketRail from '../components/CrossMarketRail'
 import CapitalStrip from '../components/CapitalStrip'
 import Icon from '../components/Icon'
-import { fetchMarkets, fetchGlobal, fetchRates, fetchSearch } from '../lib/api'
+import { fetchMarkets, fetchGlobal, fetchRates, fetchSearch, fetchFearGreed } from '../lib/api'
 import { fetchStocks, searchStocks, fetchEarningsCalendar } from '../lib/stocksApi'
+import InsightFeed from '../components/InsightFeed'
+import { buildInsights } from '../lib/insights'
+import { getPortfolio } from '../lib/portfolio'
+import { computeRows } from '../lib/portfolioCalc'
 import TickerLogo from '../components/TickerLogo'
 import { subscribeLive } from '../lib/binanceLive'
 import { getFavorites, toggleFavorite } from '../lib/favorites'
@@ -62,6 +66,11 @@ export default function Feed() {
   const [rates, setRates] = useState(null)
   const [live, setLive] = useState(() => new Map()) // SYMBOL -> цена USD (Binance WS)
   const [calendar, setCalendar] = useState({}) // SYMBOL -> ближайший отчёт (только акции)
+  // Второй рынок и настроение — только ради наблюдений: чтобы сказать «крипта
+  // идёт, а акции стоят», нужны оба рынка разом, какая бы вкладка ни была открыта.
+  const [otherMarket, setOtherMarket] = useState([])
+  const [fng, setFng] = useState(null)
+  const [holdings, setHoldings] = useState(() => getPortfolio())
   // Вид ленты: compact (таблица, по умолчанию — сканируется глазом) | cards (подробно)
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('tidewatch:viewMode') || 'compact')
   const switchView = (m) => { setViewMode(m); localStorage.setItem('tidewatch:viewMode', m) }
@@ -122,7 +131,46 @@ export default function Feed() {
     return () => clearInterval(id)
   }, [refresh, load])
 
+  // Данные для наблюдений: второй рынок, настроение, состав портфеля
+  useEffect(() => {
+    let alive = true
+    const other = tab === 'stocks' ? fetchMarkets(100, 1, currency) : fetchStocks()
+    other.then((d) => alive && setOtherMarket(Array.isArray(d) ? d : [])).catch(() => {})
+    fetchFearGreed().then((d) => alive && setFng(d)).catch(() => {})
+    if (tab !== 'stocks') fetchEarningsCalendar().then((c) => alive && setCalendar(c)).catch(() => {})
+    const sync = () => setHoldings(getPortfolio())
+    window.addEventListener('tidewatch:state-changed', sync)
+    return () => { alive = false; window.removeEventListener('tidewatch:state-changed', sync) }
+  }, [tab, currency])
+
   const onToggleFav = useCallback((id) => setFavs(new Set(toggleFavorite(id))), [])
+
+  // Наблюдения: то, ради чего экран перестал быть просто таблицей цен
+  const insights = useMemo(() => {
+    const cryptoList = tab === 'stocks' ? otherMarket : coins
+    const stockList = tab === 'stocks' ? coins : otherMarket
+    if (!cryptoList.length && !stockList.length) return []
+    const byId = Object.fromEntries([...cryptoList, ...stockList].map((c) => [c.id, c]))
+    const rows = holdings.length ? computeRows(holdings, byId, rates, currency) : []
+    return buildInsights({
+      coins: cryptoList,
+      stocks: stockList,
+      global: fng ? { fng: fng.value } : null,
+      rows,
+      calendar,
+      t,
+    })
+  }, [coins, otherMarket, tab, holdings, rates, currency, fng, calendar, t])
+
+  // Карта активов по ссылке — чтобы карточка наблюдения показала логотип и график
+  const assetsByHref = useMemo(() => {
+    const m = new Map()
+    for (const c of [...coins, ...otherMarket]) {
+      if (c.href) m.set(c.href, c)
+      else if (c.id) m.set(`/coin/${c.id}`, c)
+    }
+    return m
+  }, [coins, otherMarket])
 
   // Проверка алертов при обновлении данных — по загруженному рынку (крипта ИЛИ акции).
   // Акции уже в USD, крипта — в валюте юзера (конвертируем).
@@ -348,6 +396,18 @@ export default function Feed() {
         {/* FNG ужат в мини-метрику внутри панели Hero */}
         {showHero && coins.length > 0 && <Onboarding />}
         {showHero && coins.length > 0 && <NowMoving coins={coins} />}
+
+        {/* Наблюдения идут ПЕРЕД таблицей: человек приходит с вопросом «что там»,
+            а не «покажи мне сетку чисел». Таблица никуда не делась, она ниже. */}
+        {!query && !onlyFav && insights.length > 0 && (
+          <section className="mb-4">
+            <h2 className="text-[13px] font-semibold mb-1.5 flex items-center gap-1.5">
+              {t('insTitle')}
+              <span className="text-faint text-[11px] font-normal tnum">{insights.length}</span>
+            </h2>
+            <InsightFeed items={insights} assets={assetsByHref} />
+          </section>
+        )}
 
         {/* Быстрый доступ к функциям — на виду, а не спрятаны в меню */}
         {/* Инструменты и заголовок ленты одной полосой: раньше это были два ряда
