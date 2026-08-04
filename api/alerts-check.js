@@ -57,8 +57,14 @@ async function stockPrices(symbols) {
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store')
 
-  const secret = process.env.CRON_SECRET
-  if (secret && req.headers.authorization !== `Bearer ${secret}`) {
+  // Свой секрет отдельно от CRON_SECRET: тот же ключ держит рабочую джобу новостей,
+  // и менять его ради алертов значило бы уронить новости. Подходит любой из двух,
+  // так что старая настройка тоже продолжает работать.
+  const own = process.env.ALERTS_CRON_SECRET
+  const shared = process.env.CRON_SECRET
+  const given = req.headers.authorization
+  const ok = (own && given === `Bearer ${own}`) || (shared && given === `Bearer ${shared}`)
+  if ((own || shared) && !ok) {
     res.status(401).json({ error: 'unauthorized' }); return
   }
 
