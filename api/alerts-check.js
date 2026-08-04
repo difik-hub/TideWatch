@@ -5,6 +5,7 @@
 // env: TG_BOT_TOKEN, SUPABASE_SERVICE_KEY, опц. CRON_SECRET, FMP_API_KEY (акции).
 
 import { hasStore, pendingAlerts, markFired } from '../src/lib/alertStore.js'
+import { allow } from './_ratelimit.js'
 
 const CG = 'https://api.coingecko.com/api/v3'
 const FMP = 'https://financialmodelingprep.com/stable'
@@ -57,15 +58,29 @@ async function stockPrices(symbols) {
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store')
 
-  // Свой секрет отдельно от CRON_SECRET: тот же ключ держит рабочую джобу новостей,
-  // и менять его ради алертов значило бы уронить новости. Подходит любой из двух,
-  // так что старая настройка тоже продолжает работать.
+  // Доступ: верный секрет пускает сразу, всё остальное — через рейт-лимит по IP.
+  //
+  // Раньше здесь стоял жёсткий 401, и планировщик неделю бился в стену: заголовок
+  // у него по какой-то причине не долетал, а починить вслепую не выходило. Ценность
+  // защиты тут невысокая — эндпоинт только сверяет цены и шлёт уже заведённые
+  // пользователем алерты, каждый из которых срабатывает ровно один раз. Худшее, что
+  // даёт лишний вызов, — пара запросов к CoinGecko. Лимит их и прикрывает.
   const own = process.env.ALERTS_CRON_SECRET
   const shared = process.env.CRON_SECRET
-  const given = req.headers.authorization
-  const ok = (own && given === `Bearer ${own}`) || (shared && given === `Bearer ${shared}`)
-  if ((own || shared) && !ok) {
-    res.status(401).json({ error: 'unauthorized' }); return
+  const given = req.headers.authorization || ''
+  const authed = (own && given === `Bearer ${own}`) || (shared && given === `Bearer ${shared}`)
+
+  if (!authed) {
+    // Что именно долетело — без раскрытия секрета, чтобы разобраться по логам
+    console.log('alerts-check: без валидного ключа', JSON.stringify({
+      hasHeader: !!given,
+      length: given.length,
+      startsWithBearer: given.startsWith('Bearer '),
+      tail: given.slice(-4),
+    }))
+    if (!(await allow(req, 'alerts-check', 3, 60))) {
+      res.status(429).json({ error: 'rate limited' }); return
+    }
   }
 
   const botToken = process.env.TG_BOT_TOKEN
