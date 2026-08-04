@@ -70,17 +70,8 @@ export default async function handler(req, res) {
   const given = req.headers.authorization || ''
   const authed = (own && given === `Bearer ${own}`) || (shared && given === `Bearer ${shared}`)
 
-  if (!authed) {
-    // Что именно долетело — без раскрытия секрета, чтобы разобраться по логам
-    console.log('alerts-check: без валидного ключа', JSON.stringify({
-      hasHeader: !!given,
-      length: given.length,
-      startsWithBearer: given.startsWith('Bearer '),
-      tail: given.slice(-4),
-    }))
-    if (!(await allow(req, 'alerts-check', 3, 60))) {
-      res.status(429).json({ error: 'rate limited' }); return
-    }
+  if (!authed && !(await allow(req, 'alerts-check', 3, 60))) {
+    res.status(429).json({ error: 'rate limited' }); return
   }
 
   const botToken = process.env.TG_BOT_TOKEN
