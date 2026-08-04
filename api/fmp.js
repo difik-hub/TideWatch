@@ -67,28 +67,31 @@ export default async function handler(req, res) {
     // Дата отчёта меняется раз в квартал, поэтому кеш на сутки: 22 тикера съедают
     // 22 запроса в день из 250 на бесплатном тарифе, а не по 22 на каждый заход.
     if (p === 'calendar') {
-      const symbols = (u.searchParams.get('symbols') || '').split(',').map((s) => s.trim()).filter(Boolean).slice(0, 40)
+      const symbols = (u.searchParams.get('symbols') || '').split(',').map((s) => s.trim()).filter(Boolean).slice(0, 25)
       const today = new Date().toISOString().slice(0, 10)
       const out = {}
-      for (let i = 0; i < symbols.length; i += 6) {
-        const chunk = symbols.slice(i, i + 6)
-        const rows = await Promise.all(chunk.map((s) => fmp('earnings', { symbol: s, limit: '8' }, key).catch(() => null)))
-        chunk.forEach((sym, idx) => {
-          const list = Array.isArray(rows[idx]) ? rows[idx] : []
-          // Ближайший отчёт в будущем: список приходит от свежих к старым
-          const next = list.filter((r) => r?.date >= today).sort((a, b) => a.date.localeCompare(b.date))[0]
-          // Прошлые отчёты с фактом — считаем, сколько раз обогнали прогноз
-          const past = list.filter((r) => r?.epsActual != null && r?.epsEstimated != null).slice(0, 4)
-          const beats = past.filter((r) => r.epsActual > r.epsEstimated).length
-          if (next || past.length) {
-            out[sym] = {
-              nextDate: next?.date ?? null,
-              epsEstimated: next?.epsEstimated ?? null,
-              beats,
-              of: past.length,
-            }
+      // Строго по одному с паузой: на параллельных запросах FMP отдавал пустоту,
+      // а календарь никуда не спешит — он всё равно живёт сутки в кеше.
+      for (const sym of symbols) {
+        const raw = await fmp('earnings', { symbol: sym, limit: '8' }, key).catch(() => null)
+        const list = Array.isArray(raw) ? raw : []
+        if (!list.length) continue
+        // Ближайший отчёт в будущем
+        const next = list.filter((r) => r?.date && r.date >= today).sort((a, b) => a.date.localeCompare(b.date))[0]
+        // Прошлые отчёты с фактом — считаем, сколько раз обогнали прогноз
+        const past = list
+          .filter((r) => r?.epsActual != null && r?.epsEstimated != null)
+          .sort((a, b) => b.date.localeCompare(a.date))
+          .slice(0, 4)
+        if (next || past.length) {
+          out[sym] = {
+            nextDate: next?.date ?? null,
+            epsEstimated: next?.epsEstimated ?? null,
+            beats: past.filter((r) => r.epsActual > r.epsEstimated).length,
+            of: past.length,
           }
-        })
+        }
+        await new Promise((r) => setTimeout(r, 110))
       }
       const found = Object.keys(out).length
       res.setHeader('Cache-Control', `s-maxage=${found ? long : 60}, stale-while-revalidate=86400`)
