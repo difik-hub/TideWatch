@@ -165,15 +165,23 @@ export function buildInsights({ coins = [], stocks = [], global = null, rows = [
     })
   }
 
-  // По одному наблюдению на актив: иначе одна и та же монета попадает в ленту
-  // и как выброс, и как разворот, и читается как повтор. Оставляем важнейшее.
-  const seen = new Set()
+  // Чистим ленту двумя фильтрами.
+  // По активу: иначе одна монета попадает и как выброс, и как разворот, и это
+  // читается повтором. По типу: четыре карточки «у годового максимума» подряд
+  // выглядят как отчёт робота, а не как рассказ о том, что происходит.
+  const seenAsset = new Set()
+  const perKind = new Map()
   return out
     .sort((a, b) => a.priority - b.priority)
     .filter((o) => {
-      if (!o.href) return true
-      if (seen.has(o.href)) return false
-      seen.add(o.href)
+      if (o.href) {
+        if (seenAsset.has(o.href)) return false
+        seenAsset.add(o.href)
+      }
+      const kind = String(o.id).split('-')[0]
+      const n = perKind.get(kind) || 0
+      if (n >= 2) return false
+      perKind.set(kind, n + 1)
       return true
     })
     .slice(0, 8)
