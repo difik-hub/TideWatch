@@ -12,6 +12,12 @@ export const LANG_LABELS = {
 
 export const translations = {
   ru: {
+    fcTitle: 'Технический сигнал', fcUp: 'Скорее вверх', fcDown: 'Скорее вниз', fcFlat: 'Без явного направления',
+    fcAboveShort: 'Цена держится выше своей недавней средней', fcBelowShort: 'Цена ушла ниже своей недавней средней',
+    fcShortAboveLong: 'Недавняя средняя выше длинной — тренд вверх', fcShortBelowLong: 'Недавняя средняя ниже длинной — тренд вниз',
+    fcMomentumUp: 'Импульс вверх: {v}% за отрезок', fcMomentumDown: 'Импульс вниз: {v}% за отрезок', fcMomentumFlat: 'Импульс слабый: {v}%',
+    fcNearHigh: 'У верхней границы года ({v}% диапазона)', fcNearLow: 'У нижней границы года ({v}% диапазона)', fcMidRange: 'В середине годового диапазона ({v}%)',
+    fcDisclaimer: 'Считается по средним, импульсу и годовому диапазону — это не предсказание цены и не совет. Целевых цен аналитиков в наших источниках нет, а выдумывать их мы не станем.',
     catConsumer: 'Потребительские',
     vsShort: 'против',
     earnNext: 'Ближайший отчёт', earnToday: 'отчёт сегодня', earnInDays: 'отчёт через {n} дн', earnBeats: 'обогнал прогноз {b} раза из {of}', earnEps: 'ждут EPS {v}',
@@ -147,6 +153,12 @@ export const translations = {
   },
 
   en: {
+    fcTitle: 'Technical signal', fcUp: 'Leaning up', fcDown: 'Leaning down', fcFlat: 'No clear direction',
+    fcAboveShort: 'Price holds above its recent average', fcBelowShort: 'Price slipped below its recent average',
+    fcShortAboveLong: 'Recent average above the longer one, trend up', fcShortBelowLong: 'Recent average below the longer one, trend down',
+    fcMomentumUp: 'Momentum up: {v}% over the span', fcMomentumDown: 'Momentum down: {v}% over the span', fcMomentumFlat: 'Momentum weak: {v}%',
+    fcNearHigh: 'Near the yearly high ({v}% of range)', fcNearLow: 'Near the yearly low ({v}% of range)', fcMidRange: 'Mid yearly range ({v}%)',
+    fcDisclaimer: 'Computed from averages, momentum and the yearly range. Not a price prediction and not advice. Analyst targets are not available in our sources, and we will not invent them.',
     catConsumer: 'Consumer',
     vsShort: 'vs',
     earnNext: 'Next earnings', earnToday: 'reports today', earnInDays: 'reports in {n}d', earnBeats: 'beat estimates {b} of {of} times', earnEps: 'EPS expected {v}',
@@ -282,6 +294,12 @@ export const translations = {
   },
 
   it: {
+    fcTitle: 'Segnale tecnico', fcUp: 'Tendenza al rialzo', fcDown: 'Tendenza al ribasso', fcFlat: 'Nessuna direzione chiara',
+    fcAboveShort: 'Il prezzo resta sopra la sua media recente', fcBelowShort: 'Il prezzo è sceso sotto la sua media recente',
+    fcShortAboveLong: 'Media recente sopra quella lunga, trend al rialzo', fcShortBelowLong: 'Media recente sotto quella lunga, trend al ribasso',
+    fcMomentumUp: 'Slancio positivo: {v}%', fcMomentumDown: 'Slancio negativo: {v}%', fcMomentumFlat: 'Slancio debole: {v}%',
+    fcNearHigh: 'Vicino al massimo annuale ({v}% del range)', fcNearLow: 'Vicino al minimo annuale ({v}% del range)', fcMidRange: 'A metà del range annuale ({v}%)',
+    fcDisclaimer: 'Calcolato da medie, slancio e range annuale. Non è una previsione né un consiglio.',
     catConsumer: 'Consumi',
     vsShort: 'contro',
     earnNext: 'Prossima trimestrale', earnToday: 'risultati oggi', earnInDays: 'risultati tra {n}g', earnBeats: 'ha battuto le stime {b} volte su {of}', earnEps: 'EPS atteso {v}',
@@ -394,6 +412,12 @@ export const translations = {
   },
 
   de: {
+    fcTitle: 'Technisches Signal', fcUp: 'Eher aufwärts', fcDown: 'Eher abwärts', fcFlat: 'Keine klare Richtung',
+    fcAboveShort: 'Kurs hält sich über seinem jüngsten Durchschnitt', fcBelowShort: 'Kurs ist unter seinen jüngsten Durchschnitt gefallen',
+    fcShortAboveLong: 'Jüngster Durchschnitt über dem längeren, Trend aufwärts', fcShortBelowLong: 'Jüngster Durchschnitt unter dem längeren, Trend abwärts',
+    fcMomentumUp: 'Momentum aufwärts: {v}%', fcMomentumDown: 'Momentum abwärts: {v}%', fcMomentumFlat: 'Momentum schwach: {v}%',
+    fcNearHigh: 'Nahe am Jahreshoch ({v}% der Spanne)', fcNearLow: 'Nahe am Jahrestief ({v}% der Spanne)', fcMidRange: 'Mitte der Jahresspanne ({v}%)',
+    fcDisclaimer: 'Berechnet aus Durchschnitten, Momentum und Jahresspanne. Keine Kursprognose und keine Empfehlung.',
     catConsumer: 'Konsum',
     vsShort: 'gegen',
     earnNext: 'Nächste Zahlen', earnToday: 'Zahlen heute', earnInDays: 'Zahlen in {n} T', earnBeats: 'schlug Prognosen {b} von {of} Mal', earnEps: 'EPS erwartet {v}',
@@ -506,6 +530,12 @@ export const translations = {
   },
 
   fr: {
+    fcTitle: 'Signal technique', fcUp: 'Plutôt à la hausse', fcDown: 'Plutôt à la baisse', fcFlat: 'Pas de direction nette',
+    fcAboveShort: 'Le cours reste au-dessus de sa moyenne récente', fcBelowShort: 'Le cours est passé sous sa moyenne récente',
+    fcShortAboveLong: 'Moyenne récente au-dessus de la longue, tendance haussière', fcShortBelowLong: 'Moyenne récente sous la longue, tendance baissière',
+    fcMomentumUp: 'Élan haussier : {v}%', fcMomentumDown: 'Élan baissier : {v}%', fcMomentumFlat: 'Élan faible : {v}%',
+    fcNearHigh: 'Près du plus haut annuel ({v}% de la plage)', fcNearLow: 'Près du plus bas annuel ({v}% de la plage)', fcMidRange: 'Milieu de la plage annuelle ({v}%)',
+    fcDisclaimer: 'Calculé à partir des moyennes, de l’élan et de la plage annuelle. Ni prévision de cours, ni conseil.',
     catConsumer: 'Consommation',
     vsShort: 'contre',
     earnNext: 'Prochains résultats', earnToday: 'résultats aujourd’hui', earnInDays: 'résultats dans {n} j', earnBeats: 'a battu les prévisions {b} fois sur {of}', earnEps: 'BPA attendu {v}',
@@ -618,6 +648,12 @@ export const translations = {
   },
 
   es: {
+    fcTitle: 'Señal técnica', fcUp: 'Más bien al alza', fcDown: 'Más bien a la baja', fcFlat: 'Sin dirección clara',
+    fcAboveShort: 'El precio se mantiene sobre su media reciente', fcBelowShort: 'El precio cayó bajo su media reciente',
+    fcShortAboveLong: 'Media reciente sobre la larga, tendencia al alza', fcShortBelowLong: 'Media reciente bajo la larga, tendencia a la baja',
+    fcMomentumUp: 'Impulso al alza: {v}%', fcMomentumDown: 'Impulso a la baja: {v}%', fcMomentumFlat: 'Impulso débil: {v}%',
+    fcNearHigh: 'Cerca del máximo anual ({v}% del rango)', fcNearLow: 'Cerca del mínimo anual ({v}% del rango)', fcMidRange: 'Mitad del rango anual ({v}%)',
+    fcDisclaimer: 'Calculado con medias, impulso y rango anual. No es una predicción ni un consejo.',
     catConsumer: 'Consumo',
     vsShort: 'frente a',
     earnNext: 'Próximos resultados', earnToday: 'resultados hoy', earnInDays: 'resultados en {n} d', earnBeats: 'superó previsiones {b} de {of} veces', earnEps: 'BPA previsto {v}',

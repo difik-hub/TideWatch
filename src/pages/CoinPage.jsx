@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import Nav from '../components/Nav'
 import PriceChart from '../components/PriceChart'
+import Forecast from '../components/Forecast'
 import AnimatedNumber from '../components/AnimatedNumber'
 import InfoTip from '../components/InfoTip'
 import Icon, { TrendArrow } from '../components/Icon'
@@ -338,6 +339,18 @@ export default function CoinPage() {
             <div className="card rounded-2xl p-4 leading-relaxed text-ink tnum">{summary}</div>
           </section>
         )}
+
+        {/* Технический сигнал по той же истории, что и на графике */}
+        <div className="mt-7">
+          <Forecast
+            prices={chart?.map((p) => p.price)}
+            range52={
+              md?.atl?.[currency] != null && md?.ath?.[currency] != null
+                ? { low: md.atl[currency], high: md.ath[currency] }
+                : null
+            }
+          />
+        </div>
 
         <section className="mt-7">
           <SectionTitle icon="bars">{t('pDetails')}</SectionTitle>

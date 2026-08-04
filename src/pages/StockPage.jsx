@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import Nav from '../components/Nav'
 import PriceChart from '../components/PriceChart'
+import Forecast from '../components/Forecast'
 import TickerLogo from '../components/TickerLogo'
 import Icon, { TrendArrow } from '../components/Icon'
 import { fetchStockQuote, fetchStockSeries, fetchStockProfile, fetchStockEarnings, daysUntil } from '../lib/stocksApi'
@@ -198,6 +199,14 @@ export default function StockPage() {
                 {earnings?.nextDate && <Stat label={t('stEarnings')} value={new Date(earnings.nextDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })} />}
               </div>
             </section>
+
+            {/* Технический сигнал по дневной истории */}
+            <Forecast
+              prices={series?.map((p) => p.price)}
+              range52={stock?.fifty_two_week?.low != null && stock?.fifty_two_week?.high != null
+                ? { low: stock.fifty_two_week.low, high: stock.fifty_two_week.high }
+                : null}
+            />
 
             {/* Отчётность: когда следующий и как компания отчитывалась раньше.
                 Дата отчёта — единственное событие по акции, известное заранее. */}
