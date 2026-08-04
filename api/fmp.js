@@ -73,7 +73,9 @@ export default async function handler(req, res) {
       // Строго по одному с паузой: на параллельных запросах FMP отдавал пустоту,
       // а календарь никуда не спешит — он всё равно живёт сутки в кеше.
       for (const sym of symbols) {
-        const raw = await fmp('earnings', { symbol: sym, limit: '8' }, key).catch(() => null)
+        // limit строго ≤5: на бесплатном тарифе большее значение возвращает ошибку,
+        // а не урезанный список. Пяти хватает: ближайший отчёт плюс четыре прошлых.
+        const raw = await fmp('earnings', { symbol: sym, limit: '5' }, key).catch(() => null)
         const list = Array.isArray(raw) ? raw : []
         if (!list.length) continue
         // Ближайший отчёт в будущем
@@ -95,11 +97,6 @@ export default async function handler(req, res) {
       }
       const found = Object.keys(out).length
       res.setHeader('Cache-Control', `s-maxage=${found ? long : 60}, stale-while-revalidate=86400`)
-      if (u.searchParams.get('debug') === '1') {
-        const probe = await fmp('earnings', { symbol: symbols[0], limit: '8' }, key).catch((e) => ({ threw: String(e).slice(0, 120) }))
-        res.status(200).json({ calendar: out, debug: { symbols, today, probeType: Array.isArray(probe) ? `array:${probe.length}` : typeof probe, probe: Array.isArray(probe) ? probe.slice(0, 2) : probe } })
-        return
-      }
       res.status(200).json({ calendar: out })
       return
     }
