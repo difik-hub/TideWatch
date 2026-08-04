@@ -5,3 +5,9 @@ dist
 .env.local
 .env*.local
 dev*.log
+
+.vercel
+.env*
+
+# Граф знаний graphify: генерируется локально, в репозитории не нужен
+graphify-out/

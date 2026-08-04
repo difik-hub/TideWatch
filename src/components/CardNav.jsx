@@ -147,7 +147,7 @@ export default function CardNav({ brand, items = [], ctaLabel, ctaIcon, onCta, e
             {extraAction}
             <button
               type="button"
-              className="card-nav-cta-button bg-brand text-white"
+              className="card-nav-cta-button bg-brand text-brand-on"
               onClick={onCta}
               aria-label={ctaLabel}
             >

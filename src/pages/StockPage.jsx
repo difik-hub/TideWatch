@@ -229,7 +229,7 @@ export default function StockPage() {
                 <input value={buyPrice} onChange={(e) => setBuyPrice(e.target.value)} inputMode="decimal"
                   placeholder={`${t('portfolioBuyPrice')} (${currency.toUpperCase()})`}
                   className="flex-1 min-w-0 bg-panel2 border border-line rounded-xl px-3 py-2.5 text-sm outline-none focus:border-brand/60 tnum" />
-                <button onClick={addToPortfolio} className="px-4 rounded-xl bg-brand text-white text-sm font-medium hover:opacity-90 active:scale-[0.98] transition">+</button>
+                <button onClick={addToPortfolio} className="px-4 rounded-xl bg-brand text-brand-on text-sm font-medium hover:opacity-90 active:scale-[0.98] transition">+</button>
               </div>
             </section>
           </>

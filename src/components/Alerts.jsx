@@ -124,7 +124,7 @@ export default function Alerts() {
             {!tg.chatLinked && (
               <button
                 onClick={onConnect}
-                className="shrink-0 px-3 py-1.5 bg-brand text-white text-[12px] font-semibold hover:opacity-90 active:translate-y-px transition"
+                className="shrink-0 px-3 py-1.5 bg-brand text-brand-on text-[12px] font-semibold hover:opacity-90 active:translate-y-px transition"
               >
                 {waitingLink ? t('tgWaiting') : t('tgConnectBtn')}
               </button>
@@ -175,7 +175,7 @@ export default function Alerts() {
             />
             <button
               onClick={create}
-              className="px-4 rounded-xl bg-brand text-white text-sm font-medium hover:opacity-90 active:scale-[0.98] transition"
+              className="px-4 rounded-xl bg-brand text-brand-on text-sm font-medium hover:opacity-90 active:scale-[0.98] transition"
             >
               {t('alertCreate')}
             </button>

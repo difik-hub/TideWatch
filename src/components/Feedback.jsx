@@ -58,7 +58,7 @@ export default function Feedback() {
           <button
             onClick={send}
             disabled={!text.trim() || sending}
-            className="w-full py-2.5 rounded-xl bg-brand text-white font-medium text-sm hover:opacity-90 active:scale-[0.99] transition disabled:opacity-40"
+            className="w-full py-2.5 rounded-xl bg-brand text-brand-on font-medium text-sm hover:opacity-90 active:scale-[0.99] transition disabled:opacity-40"
           >
             {sending ? '…' : t('feedbackSend')}
           </button>

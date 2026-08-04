@@ -30,10 +30,13 @@ export default function App() {
   return (
     <UIProvider>
       <Routes>
-        {/* Главная — капитал пользователя, а не лента: лента живёт на /markets.
-            Старые ссылки на «/» со вкладкой акций перенаправляем туда же. */}
-        <Route path="/" element={<Overview />} />
-        <Route path="/markets" element={<Feed />} />
+        {/* Главная — снова лента: капитал в роли первого экрана держался на
+            позициях, которых у нового человека нет, и страница выглядела пустой.
+            Рынок наполнен всегда, а капитал теперь идёт полосой над лентой и
+            разворачивается в «Обзор» тем, кому есть что показывать. */}
+        <Route path="/" element={<Feed />} />
+        <Route path="/markets" element={<Navigate to="/" replace />} />
+        <Route path="/overview" element={<Overview />} />
         <Route path="/coin/:id" element={<CoinPage />} />
         <Route path="/stock/:sym" element={<StockPage />} />
         <Route path="/news" element={<News />} />

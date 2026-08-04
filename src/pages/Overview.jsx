@@ -183,7 +183,7 @@ export default function Overview() {
           <div className="p-2 border-t border-line">
             <button
               onClick={() => ui.openPortfolio()}
-              className="w-full py-2 bg-brand text-white text-[11px] font-bold uppercase tracking-[0.08em] hover:opacity-90 active:translate-y-px transition"
+              className="w-full py-2 bg-brand text-brand-on text-[11px] font-bold uppercase tracking-[0.08em] hover:opacity-90 active:translate-y-px transition"
             >
               {hasPortfolio ? t('ovManage') : t('ovAddFirst')}
             </button>
@@ -253,19 +253,19 @@ export default function Overview() {
         <aside className="border border-line bg-panel">
           <div className="px-3 py-1.5 border-b border-line text-[10px] uppercase tracking-[0.14em] text-faint flex justify-between">
             <span>{t('tabCrypto')}</span>
-            <Link to="/markets" className="text-brand-ink hover:underline">{t('ovAll')}</Link>
+            <Link to="/" className="text-brand-ink hover:underline">{t('ovAll')}</Link>
           </div>
           <MiniRows items={liveCoins.slice(0, 8)} currency={currency} owned={owned} hrefOf={(c) => `/coin/${c.id}`} />
 
           <div className="px-3 py-1.5 border-y border-line text-[10px] uppercase tracking-[0.14em] text-faint flex justify-between">
             <span>{t('tabStocks')}</span>
-            <Link to="/markets?tab=stocks" className="text-brand-ink hover:underline">{t('ovAll')}</Link>
+            <Link to="/?tab=stocks" className="text-brand-ink hover:underline">{t('ovAll')}</Link>
           </div>
           <MiniRows items={stocks.slice(0, 6)} currency="usd" owned={owned} hrefOf={(c) => c.href ?? `/stock/${c.symbol?.toUpperCase()}`} />
 
           <div className="p-2 border-t border-line">
             <button
-              onClick={() => navigate('/markets')}
+              onClick={() => navigate('/')}
               className="w-full py-2 border border-line text-[11px] font-semibold uppercase tracking-[0.08em] text-soft hover:text-ink hover:border-line-strong transition"
             >
               {t('ovOpenMarkets')}

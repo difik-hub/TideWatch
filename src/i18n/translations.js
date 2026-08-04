@@ -276,6 +276,13 @@ export const translations = {
   },
 
   it: {
+    ovCapital: 'Il mio capitale', ovPerDay: 'nelle 24h', ovAllTime: 'in totale', ovPcs: 'pz', ovAvg: 'media',
+    ovEvents: 'Cosa è successo ai tuoi asset', ovEventsEmpty: 'Per ora tutto calmo: nessun movimento rilevante.',
+    ovEmpty: 'Aggiungi il primo asset e qui comparirà un totale unico tra cripto e azioni.',
+    ovManage: 'Gestisci portafoglio', ovAddFirst: 'Aggiungi il primo asset', ovAll: 'tutti', ovOpenMarkets: 'Apri i mercati',
+    evAlertFired: 'Avviso attivato: {sym} {dir} {val}', evAlertNote: 'Inviato su Telegram',
+    evMoved: '{sym} si è mosso del {pct}% in 24h', evShare: '{share}% del tuo portafoglio', evBigShare: 'posizione principale, {share}% del portafoglio',
+    evPortfolio24: 'Portafoglio {pct}% in 24h', evPortfolioNote: 'su tutte le posizioni insieme',
     tagline: 'mercato crypto in tempo reale',
     cmpOut: 'sopra il mercato', cmpUnder: 'sotto il mercato', cmpEven: 'in linea col mercato',
     topGainers: 'Migliori rialzi', topLosers: 'Maggiori cali', railHint: 'nelle 24h',
@@ -378,6 +385,13 @@ export const translations = {
   },
 
   de: {
+    ovCapital: 'Mein Kapital', ovPerDay: 'letzte 24 Std', ovAllTime: 'insgesamt', ovPcs: 'Stk', ovAvg: 'Ø',
+    ovEvents: 'Was mit deinen Werten passiert ist', ovEventsEmpty: 'Bisher ruhig: keine nennenswerten Bewegungen.',
+    ovEmpty: 'Füge deinen ersten Wert hinzu, dann steht hier eine Summe über Krypto und Aktien zusammen.',
+    ovManage: 'Portfolio verwalten', ovAddFirst: 'Ersten Wert hinzufügen', ovAll: 'alle', ovOpenMarkets: 'Märkte öffnen',
+    evAlertFired: 'Alarm ausgelöst: {sym} {dir} {val}', evAlertNote: 'An Telegram gesendet',
+    evMoved: '{sym} bewegte sich {pct}% in 24 Std', evShare: '{share}% deines Portfolios', evBigShare: 'große Position, {share}% des Portfolios',
+    evPortfolio24: 'Portfolio {pct}% in 24 Std', evPortfolioNote: 'über alle Positionen zusammen',
     tagline: 'Kryptomarkt in Echtzeit',
     cmpOut: 'über dem Markt', cmpUnder: 'unter dem Markt', cmpEven: 'im Marktschnitt',
     topGainers: 'Top-Gewinner', topLosers: 'Top-Verlierer', railHint: 'in 24 Std.',
@@ -480,6 +494,13 @@ export const translations = {
   },
 
   fr: {
+    ovCapital: 'Mon capital', ovPerDay: 'sur 24 h', ovAllTime: 'au total', ovPcs: 'u', ovAvg: 'moy',
+    ovEvents: 'Ce qui est arrivé à tes actifs', ovEventsEmpty: 'Calme pour l’instant : aucun mouvement notable.',
+    ovEmpty: 'Ajoute ton premier actif et tu verras ici un total unique entre crypto et actions.',
+    ovManage: 'Gérer le portefeuille', ovAddFirst: 'Ajouter le premier actif', ovAll: 'tout', ovOpenMarkets: 'Ouvrir les marchés',
+    evAlertFired: 'Alerte déclenchée : {sym} {dir} {val}', evAlertNote: 'Envoyé sur Telegram',
+    evMoved: '{sym} a bougé de {pct}% en 24 h', evShare: '{share}% de ton portefeuille', evBigShare: 'position majeure, {share}% du portefeuille',
+    evPortfolio24: 'Portefeuille {pct}% en 24 h', evPortfolioNote: 'toutes positions confondues',
     tagline: 'marché crypto en temps réel',
     cmpOut: 'au-dessus du marché', cmpUnder: 'sous le marché', cmpEven: 'dans la moyenne',
     topGainers: 'Plus fortes hausses', topLosers: 'Plus fortes baisses', railHint: 'sur 24h',
@@ -582,6 +603,13 @@ export const translations = {
   },
 
   es: {
+    ovCapital: 'Mi capital', ovPerDay: 'en 24 h', ovAllTime: 'en total', ovPcs: 'uds', ovAvg: 'media',
+    ovEvents: 'Qué ha pasado con tus activos', ovEventsEmpty: 'De momento tranquilo: sin movimientos destacables.',
+    ovEmpty: 'Añade tu primer activo y aquí aparecerá un total único entre cripto y acciones.',
+    ovManage: 'Gestionar cartera', ovAddFirst: 'Añadir el primer activo', ovAll: 'todo', ovOpenMarkets: 'Abrir mercados',
+    evAlertFired: 'Alerta activada: {sym} {dir} {val}', evAlertNote: 'Enviado a Telegram',
+    evMoved: '{sym} se movió {pct}% en 24 h', evShare: '{share}% de tu cartera', evBigShare: 'posición principal, {share}% de la cartera',
+    evPortfolio24: 'Cartera {pct}% en 24 h', evPortfolioNote: 'sumando todas las posiciones',
     tagline: 'mercado cripto en tiempo real',
     cmpOut: 'por encima del mercado', cmpUnder: 'por debajo del mercado', cmpEven: 'en línea con el mercado',
     topGainers: 'Mayores subidas', topLosers: 'Mayores bajadas', railHint: 'en 24h',

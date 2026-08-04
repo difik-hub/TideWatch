@@ -9,6 +9,7 @@ import Hero from '../components/Hero'
 import NowMoving from '../components/NowMoving'
 import Onboarding from '../components/Onboarding'
 import CrossMarketRail from '../components/CrossMarketRail'
+import CapitalStrip from '../components/CapitalStrip'
 import Icon from '../components/Icon'
 import { fetchMarkets, fetchGlobal, fetchRates, fetchSearch } from '../lib/api'
 import { fetchStocks, searchStocks } from '../lib/stocksApi'
@@ -256,19 +257,21 @@ export default function Feed() {
       <div className="max-w-[1400px] mx-auto px-4 py-3 flex gap-3 items-start">
         {coins.length > 0 && <CrossMarketRail tab={tab} />}
         <main className="min-w-0 flex-1">
+          {/* Капитал идёт полосой над лентой: виден сразу, но экран не занимает */}
+          <CapitalStrip />
         {/* Вкладки Крипта | Акции — два рынка на одном экране (ядро видения).
             Слева и в одну строку со статусом: по центру они съедали полосу экрана. */}
         <div className="flex items-center gap-3 mb-1.5 flex-wrap">
           <div className="inline-flex border border-line bg-panel">
             <button
               onClick={() => switchTab('crypto')}
-              className={`px-3.5 py-1 text-[13px] font-semibold transition ${tab === 'crypto' ? 'bg-brand text-white' : 'text-soft hover:text-ink'}`}
+              className={`px-3.5 py-1 text-[13px] font-semibold transition ${tab === 'crypto' ? 'bg-brand text-brand-on' : 'text-soft hover:text-ink'}`}
             >
               {t('tabCrypto')}
             </button>
             <button
               onClick={() => switchTab('stocks')}
-              className={`px-3.5 py-1 text-[13px] font-semibold transition ${tab === 'stocks' ? 'bg-brand text-white' : 'text-soft hover:text-ink'}`}
+              className={`px-3.5 py-1 text-[13px] font-semibold transition ${tab === 'stocks' ? 'bg-brand text-brand-on' : 'text-soft hover:text-ink'}`}
             >
               {t('tabStocks')}
             </button>
@@ -376,14 +379,14 @@ export default function Feed() {
               <button
                 onClick={() => switchView('compact')}
                 aria-label="list"
-                className={`px-2 py-1 ${viewMode === 'compact' ? 'bg-brand text-white' : 'bg-panel text-faint hover:text-soft'}`}
+                className={`px-2 py-1 ${viewMode === 'compact' ? 'bg-brand text-brand-on' : 'bg-panel text-faint hover:text-soft'}`}
               >
                 <Icon name="bars" size={13} />
               </button>
               <button
                 onClick={() => switchView('cards')}
                 aria-label="cards"
-                className={`px-2 py-1 ${viewMode === 'cards' ? 'bg-brand text-white' : 'bg-panel text-faint hover:text-soft'}`}
+                className={`px-2 py-1 ${viewMode === 'cards' ? 'bg-brand text-brand-on' : 'bg-panel text-faint hover:text-soft'}`}
               >
                 <Icon name="grid" size={13} />
               </button>

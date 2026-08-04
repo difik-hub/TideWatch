@@ -60,7 +60,7 @@ export default function CrossMarketRail({ tab }) {
             key={m}
             onClick={() => setMode(m)}
             title={modeLabel[m]}
-            className={`flex-1 py-1 text-[12px] font-semibold transition border-r border-line last:border-r-0 ${mode === m ? 'bg-brand text-white' : 'text-faint hover:text-soft'}`}
+            className={`flex-1 py-1 text-[12px] font-semibold transition border-r border-line last:border-r-0 ${mode === m ? 'bg-brand text-brand-on' : 'text-faint hover:text-soft'}`}
           >
             {m === 'gainers' ? '↑' : m === 'losers' ? '↓' : '#'}
           </button>

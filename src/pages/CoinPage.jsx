@@ -227,11 +227,11 @@ export default function CoinPage() {
             <div className="flex items-center justify-center gap-2">
               <button
                 onClick={() => { setLoading(true); setError(null); setReloadKey((k) => k + 1) }}
-                className="px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:opacity-90 active:scale-[0.99] transition inline-flex items-center gap-1.5"
+                className="px-4 py-2 rounded-lg bg-brand text-brand-on text-sm font-medium hover:opacity-90 active:scale-[0.99] transition inline-flex items-center gap-1.5"
               >
                 <Icon name="refresh" size={15} /> {t('retry')}
               </button>
-              <Link to="/markets" className="px-4 py-2 rounded-lg bg-panel2 text-soft text-sm hover:text-ink transition inline-flex items-center gap-1.5">
+              <Link to="/" className="px-4 py-2 rounded-lg bg-panel2 text-soft text-sm hover:text-ink transition inline-flex items-center gap-1.5">
                 <Icon name="back" size={15} /> {t('back')}
               </Link>
             </div>
@@ -257,7 +257,7 @@ export default function CoinPage() {
       <Nav />
 
       <main className="max-w-2xl mx-auto px-4 py-5">
-        <Link to="/markets" className="inline-flex items-center gap-1 text-soft hover:text-ink text-sm mb-5 transition">
+        <Link to="/" className="inline-flex items-center gap-1 text-soft hover:text-ink text-sm mb-5 transition">
           <Icon name="back" size={16} /> {t('back')}
         </Link>
 
@@ -316,7 +316,7 @@ export default function CoinPage() {
                 key={p.key}
                 onClick={() => setPeriod(p)}
                 className={`flex-1 py-1.5 rounded-lg text-[13px] font-medium transition ${
-                  period.key === p.key ? 'bg-brand text-white' : 'bg-panel2 text-soft hover:text-ink'
+                  period.key === p.key ? 'bg-brand text-brand-on' : 'bg-panel2 text-soft hover:text-ink'
                 }`}
               >
                 {periodLabel(p)}

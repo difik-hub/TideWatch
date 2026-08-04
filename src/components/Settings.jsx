@@ -27,7 +27,7 @@ function Segmented({ options, value, onChange }) {
             onClick={() => onChange(o.value)}
             className={`py-2 px-1 rounded-lg text-[13px] font-medium transition border ${
               active
-                ? 'bg-brand text-white border-transparent'
+                ? 'bg-brand text-brand-on border-transparent'
                 : 'bg-panel2 text-soft border-line hover:text-ink'
             }`}
           >
@@ -83,7 +83,7 @@ function AccountSection({ t }) {
       <div className="flex gap-2">
         <button
           onClick={() => run(signIn)} disabled={busy || !email || pass.length < 6}
-          className="flex-1 py-2 rounded-xl bg-brand text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-40"
+          className="flex-1 py-2 rounded-xl bg-brand text-brand-on text-sm font-medium hover:opacity-90 transition disabled:opacity-40"
         >
           {t('accLogin')}
         </button>
@@ -217,7 +217,7 @@ export default function Settings({ open, onClose }) {
         <div className="px-5 py-5">
           <button
             onClick={onClose}
-            className="w-full py-2.5 rounded-xl bg-brand text-white font-medium text-sm hover:opacity-90 active:scale-[0.99] transition"
+            className="w-full py-2.5 rounded-xl bg-brand text-brand-on font-medium text-sm hover:opacity-90 active:scale-[0.99] transition"
           >
             {t('done')}
           </button>
