@@ -29,6 +29,12 @@ function CoinRow({ coin, isFav, onToggleFav, rates, livePrice = null, earnings =
 
   // Дату отчёта показываем всегда: отчёты раз в квартал, и при пороге «только
   // скоро» метка не появлялась бы почти никогда. Ближние две недели — акцентом.
+  // Насколько цена ниже годового максимума (отрицательное число или ноль)
+  const high52 = coin.fifty_two_week?.high
+  const fromHigh = high52 && coin.current_price != null && high52 > 0
+    ? ((coin.current_price - high52) / high52) * 100
+    : null
+
   const inDays = earnings?.nextDate ? daysUntil(earnings.nextDate) : null
   const hasDate = inDays != null && inDays >= 0
   const soon = hasDate && inDays <= 14
@@ -103,8 +109,16 @@ function CoinRow({ coin, isFav, onToggleFav, rates, livePrice = null, earnings =
       {/* Объём за сутки — только на десктопе */}
       <span className="text-right hidden sm:block text-[12px] text-soft tnum">{formatBig(coin.total_volume, currency)}</span>
 
-      {/* Капа — только на десктопе */}
-      <span className="text-right hidden sm:block text-[12px] text-soft tnum">{formatBig(coin.market_cap, currency)}</span>
+      {/* Капитализация, а у акций — расстояние до годового максимума: капитализацию
+          источник котировок не отдаёт, и колонка стояла пустой. Для держателя
+          «просело на 24% от пика» и полезнее абсолютной капитализации. */}
+      <span className="text-right hidden sm:block text-[12px] text-soft tnum">
+        {coin.market_cap != null
+          ? formatBig(coin.market_cap, currency)
+          : fromHigh != null
+            ? <span title={t('lblFromHigh')} className={fromHigh <= -20 ? 'text-down' : ''}>{formatPct(fromHigh)}</span>
+            : '—'}
+      </span>
 
       {/* Спарклайн — только на десктопе */}
       <span className="hidden sm:block opacity-80">

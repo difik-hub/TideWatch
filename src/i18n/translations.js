@@ -12,6 +12,7 @@ export const LANG_LABELS = {
 
 export const translations = {
   ru: {
+    lblFromHigh: 'От годового максимума',
     fcTitle: 'Технический сигнал', fcUp: 'Скорее вверх', fcDown: 'Скорее вниз', fcFlat: 'Без явного направления',
     fcAboveShort: 'Цена держится выше своей недавней средней', fcBelowShort: 'Цена ушла ниже своей недавней средней',
     fcShortAboveLong: 'Недавняя средняя выше длинной — тренд вверх', fcShortBelowLong: 'Недавняя средняя ниже длинной — тренд вниз',
@@ -153,6 +154,7 @@ export const translations = {
   },
 
   en: {
+    lblFromHigh: 'From 52-week high',
     fcTitle: 'Technical signal', fcUp: 'Leaning up', fcDown: 'Leaning down', fcFlat: 'No clear direction',
     fcAboveShort: 'Price holds above its recent average', fcBelowShort: 'Price slipped below its recent average',
     fcShortAboveLong: 'Recent average above the longer one, trend up', fcShortBelowLong: 'Recent average below the longer one, trend down',
@@ -294,6 +296,7 @@ export const translations = {
   },
 
   it: {
+    lblFromHigh: 'Dal massimo annuale',
     fcTitle: 'Segnale tecnico', fcUp: 'Tendenza al rialzo', fcDown: 'Tendenza al ribasso', fcFlat: 'Nessuna direzione chiara',
     fcAboveShort: 'Il prezzo resta sopra la sua media recente', fcBelowShort: 'Il prezzo è sceso sotto la sua media recente',
     fcShortAboveLong: 'Media recente sopra quella lunga, trend al rialzo', fcShortBelowLong: 'Media recente sotto quella lunga, trend al ribasso',
@@ -412,6 +415,7 @@ export const translations = {
   },
 
   de: {
+    lblFromHigh: 'Vom Jahreshoch',
     fcTitle: 'Technisches Signal', fcUp: 'Eher aufwärts', fcDown: 'Eher abwärts', fcFlat: 'Keine klare Richtung',
     fcAboveShort: 'Kurs hält sich über seinem jüngsten Durchschnitt', fcBelowShort: 'Kurs ist unter seinen jüngsten Durchschnitt gefallen',
     fcShortAboveLong: 'Jüngster Durchschnitt über dem längeren, Trend aufwärts', fcShortBelowLong: 'Jüngster Durchschnitt unter dem längeren, Trend abwärts',
@@ -530,6 +534,7 @@ export const translations = {
   },
 
   fr: {
+    lblFromHigh: 'Du plus haut annuel',
     fcTitle: 'Signal technique', fcUp: 'Plutôt à la hausse', fcDown: 'Plutôt à la baisse', fcFlat: 'Pas de direction nette',
     fcAboveShort: 'Le cours reste au-dessus de sa moyenne récente', fcBelowShort: 'Le cours est passé sous sa moyenne récente',
     fcShortAboveLong: 'Moyenne récente au-dessus de la longue, tendance haussière', fcShortBelowLong: 'Moyenne récente sous la longue, tendance baissière',
@@ -648,6 +653,7 @@ export const translations = {
   },
 
   es: {
+    lblFromHigh: 'Del máximo anual',
     fcTitle: 'Señal técnica', fcUp: 'Más bien al alza', fcDown: 'Más bien a la baja', fcFlat: 'Sin dirección clara',
     fcAboveShort: 'El precio se mantiene sobre su media reciente', fcBelowShort: 'El precio cayó bajo su media reciente',
     fcShortAboveLong: 'Media reciente sobre la larga, tendencia al alza', fcShortBelowLong: 'Media reciente bajo la larga, tendencia a la baja',
