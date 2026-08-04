@@ -27,10 +27,11 @@ function CoinRow({ coin, isFav, onToggleFav, rates, livePrice = null, earnings =
   const { currency } = useSettings()
   const t = useT()
 
-  // Дни до отчёта: горизонт двух недель. Меньше — бейдж почти никогда не виден
-  // (отчёты раз в квартал), больше — перестаёт быть новостью и мусорит ленту.
+  // Дату отчёта показываем всегда: отчёты раз в квартал, и при пороге «только
+  // скоро» метка не появлялась бы почти никогда. Ближние две недели — акцентом.
   const inDays = earnings?.nextDate ? daysUntil(earnings.nextDate) : null
-  const soon = inDays != null && inDays >= 0 && inDays <= 14
+  const hasDate = inDays != null && inDays >= 0
+  const soon = hasDate && inDays <= 14
 
   const d1 = coin.price_change_percentage_1h_in_currency
   const d24 = coin.price_change_percentage_24h_in_currency ?? coin.price_change_percentage_24h
@@ -64,12 +65,20 @@ function CoinRow({ coin, isFav, onToggleFav, rates, livePrice = null, earnings =
         <span className="min-w-0 flex items-baseline gap-1.5">
           <span className="text-[13px] font-semibold uppercase tnum leading-tight">{coin.symbol}</span>
           <span className="text-[11px] text-faint truncate leading-tight">{coin.name}</span>
-          {soon && (
+          {hasDate && (
             <span
-              title={`${t('earnNext')}: ${earnings.nextDate}`}
-              className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-brand-ink border border-brand/40 bg-brand-soft px-1 py-px leading-tight"
+              title={`${t('earnNext')}: ${earnings.nextDate}${earnings.of ? ` · ${t('earnBeats', { b: earnings.beats, of: earnings.of })}` : ''}`}
+              className={`hidden sm:inline shrink-0 text-[10px] tnum px-1 py-px leading-tight border ${
+                soon
+                  ? 'font-semibold text-brand-ink border-brand/40 bg-brand-soft'
+                  : 'text-faint border-line'
+              }`}
             >
-              {inDays === 0 ? t('earnToday') : t('earnInDays', { n: inDays })}
+              {inDays === 0
+                ? t('earnToday')
+                : soon
+                  ? t('earnInDays', { n: inDays })
+                  : new Date(earnings.nextDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
             </span>
           )}
         </span>
