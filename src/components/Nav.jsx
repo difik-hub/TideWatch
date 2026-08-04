@@ -78,7 +78,7 @@ export default function Nav({ children }) {
   const items = useMemo(() => [
     {
       label: t('navMarket'),
-      bg: 'color-mix(in oklab, var(--brand) 16%, transparent)',
+      bg: 'color-mix(in oklab, var(--brand) 9%, transparent)',
       fg: 'var(--ink)',
       links: [
         { label: t('allCoins'), onClick: () => navigate('/') },
