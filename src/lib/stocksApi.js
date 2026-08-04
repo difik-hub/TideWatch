@@ -52,15 +52,49 @@ function quoteToCoin(q, rank, marketOpen) {
   }
 }
 
-// Вся лента акций одним запросом (сервер обходит список сам)
+// Квота Yahoo → объект в формате монеты. Отличие от FMP: есть недельная динамика
+// и история цен, поэтому у акций появились спарклайн и колонка 7д.
+function yfToCoin(q, rank, marketOpen) {
+  const sym = q.symbol
+  return {
+    id: sym,
+    symbol: sym,
+    name: stockName(sym) || q.name || sym,
+    image: logoUrl(sym),
+    kind: 'stock',
+    cat: stockCat(sym),
+    href: `/stock/${sym}`,
+    current_price: num(q.price),
+    price_change_percentage_24h: num(q.change24),
+    price_change_percentage_24h_in_currency: num(q.change24),
+    price_change_percentage_7d_in_currency: num(q.change7d),
+    market_cap: null, // Yahoo его тут не отдаёт; порядок ленты задаёт config/stocks
+    market_cap_rank: rank,
+    total_volume: num(q.volume),
+    is_market_open: !!marketOpen,
+    fifty_two_week: { low: num(q.low52), high: num(q.high52) },
+    high: num(q.dayHigh),
+    low: num(q.dayLow),
+    previous_close: num(q.prevClose),
+    exchange: q.exchange || null,
+    currency: 'USD',
+    sparkline_in_7d: Array.isArray(q.sparkline) && q.sparkline.length > 1 ? { price: q.sparkline } : undefined,
+  }
+}
+
+// Вся лента акций одним запросом (сервер обходит список сам).
+// Порядок — как в config/stocks: капитализации у источника нет, а ручной порядок
+// всё равно осмысленнее, чем сортировка по цене.
 export async function fetchStocks() {
-  const url = `/api/fmp?p=feed&symbols=${encodeURIComponent(STOCK_SYMBOLS.join(','))}`
+  const url = `/api/yf?symbols=${encodeURIComponent(STOCK_SYMBOLS.join(','))}`
   const data = await getJSON(url)
   const quotes = data?.quotes
-  if (!Array.isArray(quotes)) return []
-  // Ранжируем по реальной капитализации
-  const sorted = [...quotes].filter((q) => q.price != null).sort((a, b) => (b.marketCap || 0) - (a.marketCap || 0))
-  return sorted.map((q, i) => quoteToCoin(q, i + 1, data.marketOpen))
+  if (!Array.isArray(quotes) || !quotes.length) return []
+  const order = new Map(STOCK_SYMBOLS.map((s, i) => [s, i]))
+  const sorted = [...quotes]
+    .filter((q) => q.price != null)
+    .sort((a, b) => (order.get(a.symbol) ?? 999) - (order.get(b.symbol) ?? 999))
+  return sorted.map((q, i) => yfToCoin(q, i + 1, data.marketOpen))
 }
 
 // Календарь отчётов по всей ленте: { SYM: {nextDate, epsEstimated, beats, of} }.

@@ -12,6 +12,7 @@ export const LANG_LABELS = {
 
 export const translations = {
   ru: {
+    catConsumer: 'Потребительские',
     vsShort: 'против',
     earnNext: 'Ближайший отчёт', earnToday: 'отчёт сегодня', earnInDays: 'отчёт через {n} дн', earnBeats: 'обогнал прогноз {b} раза из {of}', earnEps: 'ждут EPS {v}',
     tagline: 'крипторынок в реальном времени',
@@ -146,6 +147,7 @@ export const translations = {
   },
 
   en: {
+    catConsumer: 'Consumer',
     vsShort: 'vs',
     earnNext: 'Next earnings', earnToday: 'reports today', earnInDays: 'reports in {n}d', earnBeats: 'beat estimates {b} of {of} times', earnEps: 'EPS expected {v}',
     tagline: 'crypto market in real time',
@@ -280,6 +282,7 @@ export const translations = {
   },
 
   it: {
+    catConsumer: 'Consumi',
     vsShort: 'contro',
     earnNext: 'Prossima trimestrale', earnToday: 'risultati oggi', earnInDays: 'risultati tra {n}g', earnBeats: 'ha battuto le stime {b} volte su {of}', earnEps: 'EPS atteso {v}',
     ovCapital: 'Il mio capitale', ovPerDay: 'nelle 24h', ovAllTime: 'in totale', ovPcs: 'pz', ovAvg: 'media',
@@ -391,6 +394,7 @@ export const translations = {
   },
 
   de: {
+    catConsumer: 'Konsum',
     vsShort: 'gegen',
     earnNext: 'Nächste Zahlen', earnToday: 'Zahlen heute', earnInDays: 'Zahlen in {n} T', earnBeats: 'schlug Prognosen {b} von {of} Mal', earnEps: 'EPS erwartet {v}',
     ovCapital: 'Mein Kapital', ovPerDay: 'letzte 24 Std', ovAllTime: 'insgesamt', ovPcs: 'Stk', ovAvg: 'Ø',
@@ -502,6 +506,7 @@ export const translations = {
   },
 
   fr: {
+    catConsumer: 'Consommation',
     vsShort: 'contre',
     earnNext: 'Prochains résultats', earnToday: 'résultats aujourd’hui', earnInDays: 'résultats dans {n} j', earnBeats: 'a battu les prévisions {b} fois sur {of}', earnEps: 'BPA attendu {v}',
     ovCapital: 'Mon capital', ovPerDay: 'sur 24 h', ovAllTime: 'au total', ovPcs: 'u', ovAvg: 'moy',
@@ -613,6 +618,7 @@ export const translations = {
   },
 
   es: {
+    catConsumer: 'Consumo',
     vsShort: 'frente a',
     earnNext: 'Próximos resultados', earnToday: 'resultados hoy', earnInDays: 'resultados en {n} d', earnBeats: 'superó previsiones {b} de {of} veces', earnEps: 'BPA previsto {v}',
     ovCapital: 'Mi capital', ovPerDay: 'en 24 h', ovAllTime: 'en total', ovPcs: 'uds', ovAvg: 'media',
