@@ -27,9 +27,10 @@ function CoinRow({ coin, isFav, onToggleFav, rates, livePrice = null, earnings =
   const { currency } = useSettings()
   const t = useT()
 
-  // Дни до отчёта: показываем только ближнюю неделю, дальше это не новость
+  // Дни до отчёта: горизонт двух недель. Меньше — бейдж почти никогда не виден
+  // (отчёты раз в квартал), больше — перестаёт быть новостью и мусорит ленту.
   const inDays = earnings?.nextDate ? daysUntil(earnings.nextDate) : null
-  const soon = inDays != null && inDays >= 0 && inDays <= 7
+  const soon = inDays != null && inDays >= 0 && inDays <= 14
 
   const d1 = coin.price_change_percentage_1h_in_currency
   const d24 = coin.price_change_percentage_24h_in_currency ?? coin.price_change_percentage_24h
