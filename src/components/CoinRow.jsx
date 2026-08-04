@@ -7,6 +7,7 @@ import { TrendArrow } from './Icon'
 import { useSettings } from '../store/settings'
 import { useT } from '../i18n/useT'
 import { formatPrice, formatBig, formatPct, trendOf, convertPrice } from '../lib/format'
+import { daysUntil } from '../lib/stocksApi'
 
 const trendColor = { rise: 'text-up', fall: 'text-down', flat: 'text-soft' }
 
@@ -22,9 +23,13 @@ function Pct({ value }) {
 
 // Компактная строка монеты (табличный вид как у больших трекеров):
 // вся ключевая инфа сканируется глазом, 10+ монет на экране.
-function CoinRow({ coin, isFav, onToggleFav, rates, livePrice = null }) {
+function CoinRow({ coin, isFav, onToggleFav, rates, livePrice = null, earnings = null }) {
   const { currency } = useSettings()
   const t = useT()
+
+  // Дни до отчёта: показываем только ближнюю неделю, дальше это не новость
+  const inDays = earnings?.nextDate ? daysUntil(earnings.nextDate) : null
+  const soon = inDays != null && inDays >= 0 && inDays <= 7
 
   const d1 = coin.price_change_percentage_1h_in_currency
   const d24 = coin.price_change_percentage_24h_in_currency ?? coin.price_change_percentage_24h
@@ -58,6 +63,14 @@ function CoinRow({ coin, isFav, onToggleFav, rates, livePrice = null }) {
         <span className="min-w-0 flex items-baseline gap-1.5">
           <span className="text-[13px] font-semibold uppercase tnum leading-tight">{coin.symbol}</span>
           <span className="text-[11px] text-faint truncate leading-tight">{coin.name}</span>
+          {soon && (
+            <span
+              title={`${t('earnNext')}: ${earnings.nextDate}`}
+              className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-brand-ink border border-brand/40 bg-brand-soft px-1 py-px leading-tight"
+            >
+              {inDays === 0 ? t('earnToday') : t('earnInDays', { n: inDays })}
+            </span>
+          )}
         </span>
       </span>
 

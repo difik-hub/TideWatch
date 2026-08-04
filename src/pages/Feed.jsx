@@ -12,7 +12,7 @@ import CrossMarketRail from '../components/CrossMarketRail'
 import CapitalStrip from '../components/CapitalStrip'
 import Icon from '../components/Icon'
 import { fetchMarkets, fetchGlobal, fetchRates, fetchSearch } from '../lib/api'
-import { fetchStocks, searchStocks } from '../lib/stocksApi'
+import { fetchStocks, searchStocks, fetchEarningsCalendar } from '../lib/stocksApi'
 import TickerLogo from '../components/TickerLogo'
 import { subscribeLive } from '../lib/binanceLive'
 import { getFavorites, toggleFavorite } from '../lib/favorites'
@@ -61,6 +61,7 @@ export default function Feed() {
   const [global, setGlobal] = useState(null)
   const [rates, setRates] = useState(null)
   const [live, setLive] = useState(() => new Map()) // SYMBOL -> цена USD (Binance WS)
+  const [calendar, setCalendar] = useState({}) // SYMBOL -> ближайший отчёт (только акции)
   // Вид ленты: compact (таблица, по умолчанию — сканируется глазом) | cards (подробно)
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('tidewatch:viewMode') || 'compact')
   const switchView = (m) => { setViewMode(m); localStorage.setItem('tidewatch:viewMode', m) }
@@ -86,6 +87,9 @@ export default function Feed() {
         setCoins(data)
         setUpdatedAt(new Date())
         if (!data.length) setError(t('stocksEmpty'))
+        // Календарь отчётов — отдельно и молча: дата известна заранее, ради неё
+        // не стоит задерживать ленту, а её отсутствие не должно ломать экран.
+        fetchEarningsCalendar().then(setCalendar).catch(() => {})
       } else {
         const data = await fetchMarkets(coinCount, 1, currency)
         setCoins(data)
@@ -430,6 +434,7 @@ export default function Feed() {
                 onToggleFav={onToggleFav}
                 rates={rates}
                 livePrice={live.get(coin.symbol?.toUpperCase()) ?? null}
+                earnings={calendar[coin.symbol?.toUpperCase()] ?? null}
               />
             ))}
           </div>

@@ -63,6 +63,25 @@ export async function fetchStocks() {
   return sorted.map((q, i) => quoteToCoin(q, i + 1, data.marketOpen))
 }
 
+// Календарь отчётов по всей ленте: { SYM: {nextDate, epsEstimated, beats, of} }.
+// Дата отчёта — то немногое о компании, что известно заранее: это повод вернуться
+// на сайт, а не очередная цифра. Кеш час на клиенте, сутки на edge.
+export async function fetchEarningsCalendar() {
+  const url = `/api/fmp?p=calendar&symbols=${encodeURIComponent(STOCK_SYMBOLS.join(','))}`
+  const data = await getJSON(url, 3600_000)
+  return data?.calendar && typeof data.calendar === 'object' ? data.calendar : {}
+}
+
+// Сколько дней до отчёта: null — даты нет, 0 — сегодня
+export function daysUntil(dateStr) {
+  if (!dateStr) return null
+  const d = new Date(`${dateStr}T00:00:00Z`)
+  if (isNaN(d)) return null
+  const today = new Date()
+  const utcToday = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())
+  return Math.round((d.getTime() - utcToday) / 86400_000)
+}
+
 // Квота одной акции (страница /stock/:sym)
 export async function fetchStockQuote(symbol) {
   const data = await getJSON(`/api/fmp?p=quote&symbol=${encodeURIComponent(symbol)}`)
@@ -92,12 +111,32 @@ export async function fetchStockSeries(symbol, days = 90) {
 }
 
 // Ближайшая дата отчёта (earnings)
+// Отчётность: ближайшая дата + прошлые отчёты факт против прогноза.
+// «Обогнал прогноз 3 раза из 4» говорит о компании больше, чем цена за день,
+// и это единственное событие по акции, которое известно заранее.
 export async function fetchStockEarnings(symbol) {
   const data = await getJSON(`/api/fmp?p=earnings&symbol=${encodeURIComponent(symbol)}`, 21600_000)
   if (!Array.isArray(data)) return null
   const today = new Date().toISOString().slice(0, 10)
-  const future = data.filter((e) => e.date >= today).sort((a, b) => (a.date < b.date ? -1 : 1))
-  return future[0]?.date || null
+  const next = data.filter((e) => e.date >= today).sort((a, b) => a.date.localeCompare(b.date))[0] || null
+  const past = data
+    .filter((e) => e.epsActual != null && e.epsEstimated != null)
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 4)
+    .map((e) => ({
+      date: e.date,
+      epsActual: e.epsActual,
+      epsEstimated: e.epsEstimated,
+      beat: e.epsActual > e.epsEstimated,
+    }))
+  if (!next && !past.length) return null
+  return {
+    nextDate: next?.date || null,
+    epsEstimated: next?.epsEstimated ?? null,
+    past,
+    beats: past.filter((e) => e.beat).length,
+    of: past.length,
+  }
 }
 
 // Поиск акций (FMP search-name, только биржи США)

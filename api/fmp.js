@@ -6,7 +6,7 @@
 import { allow } from './_ratelimit.js'
 
 const BASE = 'https://financialmodelingprep.com/stable'
-const ALLOWED = new Set(['feed', 'quote', 'profile', 'history', 'earnings', 'search'])
+const ALLOWED = new Set(['feed', 'quote', 'profile', 'history', 'earnings', 'search', 'calendar'])
 const US_EXCH = new Set(['NASDAQ', 'NYSE', 'AMEX'])
 
 // Открыт ли рынок США (Mon-Fri 9:30–16:00 ET) — для длины кеша
@@ -60,6 +60,39 @@ export default async function handler(req, res) {
       const sMax = out.length ? sMaxQuote : 60
       res.setHeader('Cache-Control', `s-maxage=${sMax}, stale-while-revalidate=3600`)
       res.status(200).json({ marketOpen: open, quotes: out })
+      return
+    }
+
+    // КАЛЕНДАРЬ ОТЧЁТОВ: ближайшая дата отчёта по списку тикеров.
+    // Дата отчёта меняется раз в квартал, поэтому кеш на сутки: 22 тикера съедают
+    // 22 запроса в день из 250 на бесплатном тарифе, а не по 22 на каждый заход.
+    if (p === 'calendar') {
+      const symbols = (u.searchParams.get('symbols') || '').split(',').map((s) => s.trim()).filter(Boolean).slice(0, 40)
+      const today = new Date().toISOString().slice(0, 10)
+      const out = {}
+      for (let i = 0; i < symbols.length; i += 6) {
+        const chunk = symbols.slice(i, i + 6)
+        const rows = await Promise.all(chunk.map((s) => fmp('earnings', { symbol: s, limit: '8' }, key).catch(() => null)))
+        chunk.forEach((sym, idx) => {
+          const list = Array.isArray(rows[idx]) ? rows[idx] : []
+          // Ближайший отчёт в будущем: список приходит от свежих к старым
+          const next = list.filter((r) => r?.date >= today).sort((a, b) => a.date.localeCompare(b.date))[0]
+          // Прошлые отчёты с фактом — считаем, сколько раз обогнали прогноз
+          const past = list.filter((r) => r?.epsActual != null && r?.epsEstimated != null).slice(0, 4)
+          const beats = past.filter((r) => r.epsActual > r.epsEstimated).length
+          if (next || past.length) {
+            out[sym] = {
+              nextDate: next?.date ?? null,
+              epsEstimated: next?.epsEstimated ?? null,
+              beats,
+              of: past.length,
+            }
+          }
+        })
+      }
+      const found = Object.keys(out).length
+      res.setHeader('Cache-Control', `s-maxage=${found ? long : 60}, stale-while-revalidate=86400`)
+      res.status(200).json({ calendar: out })
       return
     }
 

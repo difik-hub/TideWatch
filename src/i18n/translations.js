@@ -12,6 +12,8 @@ export const LANG_LABELS = {
 
 export const translations = {
   ru: {
+    vsShort: 'против',
+    earnNext: 'Ближайший отчёт', earnToday: 'отчёт сегодня', earnInDays: 'отчёт через {n} дн', earnBeats: 'обогнал прогноз {b} раза из {of}', earnEps: 'ждут EPS {v}',
     tagline: 'крипторынок в реальном времени',
     cmpOut: 'обгоняет рынок', cmpUnder: 'слабее рынка', cmpEven: 'наравне с рынком',
     topGainers: 'Лидеры роста', topLosers: 'Лидеры падения', railHint: 'за 24 часа',
@@ -144,6 +146,8 @@ export const translations = {
   },
 
   en: {
+    vsShort: 'vs',
+    earnNext: 'Next earnings', earnToday: 'reports today', earnInDays: 'reports in {n}d', earnBeats: 'beat estimates {b} of {of} times', earnEps: 'EPS expected {v}',
     tagline: 'crypto market in real time',
     cmpOut: 'outperforming market', cmpUnder: 'lagging market', cmpEven: 'in line with market',
     topGainers: 'Top gainers', topLosers: 'Top losers', railHint: 'past 24h',
@@ -276,6 +280,8 @@ export const translations = {
   },
 
   it: {
+    vsShort: 'contro',
+    earnNext: 'Prossima trimestrale', earnToday: 'risultati oggi', earnInDays: 'risultati tra {n}g', earnBeats: 'ha battuto le stime {b} volte su {of}', earnEps: 'EPS atteso {v}',
     ovCapital: 'Il mio capitale', ovPerDay: 'nelle 24h', ovAllTime: 'in totale', ovPcs: 'pz', ovAvg: 'media',
     ovEvents: 'Cosa è successo ai tuoi asset', ovEventsEmpty: 'Per ora tutto calmo: nessun movimento rilevante.',
     ovEmpty: 'Aggiungi il primo asset e qui comparirà un totale unico tra cripto e azioni.',
@@ -385,6 +391,8 @@ export const translations = {
   },
 
   de: {
+    vsShort: 'gegen',
+    earnNext: 'Nächste Zahlen', earnToday: 'Zahlen heute', earnInDays: 'Zahlen in {n} T', earnBeats: 'schlug Prognosen {b} von {of} Mal', earnEps: 'EPS erwartet {v}',
     ovCapital: 'Mein Kapital', ovPerDay: 'letzte 24 Std', ovAllTime: 'insgesamt', ovPcs: 'Stk', ovAvg: 'Ø',
     ovEvents: 'Was mit deinen Werten passiert ist', ovEventsEmpty: 'Bisher ruhig: keine nennenswerten Bewegungen.',
     ovEmpty: 'Füge deinen ersten Wert hinzu, dann steht hier eine Summe über Krypto und Aktien zusammen.',
@@ -494,6 +502,8 @@ export const translations = {
   },
 
   fr: {
+    vsShort: 'contre',
+    earnNext: 'Prochains résultats', earnToday: 'résultats aujourd’hui', earnInDays: 'résultats dans {n} j', earnBeats: 'a battu les prévisions {b} fois sur {of}', earnEps: 'BPA attendu {v}',
     ovCapital: 'Mon capital', ovPerDay: 'sur 24 h', ovAllTime: 'au total', ovPcs: 'u', ovAvg: 'moy',
     ovEvents: 'Ce qui est arrivé à tes actifs', ovEventsEmpty: 'Calme pour l’instant : aucun mouvement notable.',
     ovEmpty: 'Ajoute ton premier actif et tu verras ici un total unique entre crypto et actions.',
@@ -603,6 +613,8 @@ export const translations = {
   },
 
   es: {
+    vsShort: 'frente a',
+    earnNext: 'Próximos resultados', earnToday: 'resultados hoy', earnInDays: 'resultados en {n} d', earnBeats: 'superó previsiones {b} de {of} veces', earnEps: 'BPA previsto {v}',
     ovCapital: 'Mi capital', ovPerDay: 'en 24 h', ovAllTime: 'en total', ovPcs: 'uds', ovAvg: 'media',
     ovEvents: 'Qué ha pasado con tus activos', ovEventsEmpty: 'De momento tranquilo: sin movimientos destacables.',
     ovEmpty: 'Añade tu primer activo y aquí aparecerá un total único entre cripto y acciones.',

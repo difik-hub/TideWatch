@@ -4,7 +4,7 @@ import Nav from '../components/Nav'
 import PriceChart from '../components/PriceChart'
 import TickerLogo from '../components/TickerLogo'
 import Icon, { TrendArrow } from '../components/Icon'
-import { fetchStockQuote, fetchStockSeries, fetchStockProfile, fetchStockEarnings } from '../lib/stocksApi'
+import { fetchStockQuote, fetchStockSeries, fetchStockProfile, fetchStockEarnings, daysUntil } from '../lib/stocksApi'
 import { fetchRates } from '../lib/api'
 import { isUSMarketOpen } from '../lib/market'
 import { formatPrice, formatBig, formatNum, formatPct, trendOf, convertPrice } from '../lib/format'
@@ -195,9 +195,59 @@ export default function StockPage() {
                 <Stat label={t('stPrevClose')} value={formatPrice(toCur(stock.previous_close), currency)} />
                 <Stat label={t('lblVol')} value={formatBig(stock.total_volume, '')} />
                 <Stat label={t('lblCap')} value={formatBig(toCur(stock.market_cap), currency)} />
-                {earnings && <Stat label={t('stEarnings')} value={new Date(earnings).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })} />}
+                {earnings?.nextDate && <Stat label={t('stEarnings')} value={new Date(earnings.nextDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })} />}
               </div>
             </section>
+
+            {/* Отчётность: когда следующий и как компания отчитывалась раньше.
+                Дата отчёта — единственное событие по акции, известное заранее. */}
+            {earnings && (earnings.nextDate || earnings.of > 0) && (
+              <section className="mb-6">
+                <SectionTitle icon="bell">{t('earnNext')}</SectionTitle>
+                <div className="border border-line bg-panel px-3 py-2.5">
+                  {earnings.nextDate && (
+                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-2">
+                      <span className="text-[15px] font-semibold tnum">
+                        {new Date(earnings.nextDate).toLocaleDateString(undefined, { day: 'numeric', month: 'long' })}
+                      </span>
+                      {(() => {
+                        const n = daysUntil(earnings.nextDate)
+                        return n != null && n >= 0 ? (
+                          <span className="text-[12px] text-brand-ink font-semibold">
+                            {n === 0 ? t('earnToday') : t('earnInDays', { n })}
+                          </span>
+                        ) : null
+                      })()}
+                      {earnings.epsEstimated != null && (
+                        <span className="text-[12px] text-soft tnum">{t('earnEps', { v: earnings.epsEstimated })}</span>
+                      )}
+                    </div>
+                  )}
+
+                  {earnings.of > 0 && (
+                    <>
+                      <div className="text-[12px] text-soft mb-1.5">
+                        {t('earnBeats', { b: earnings.beats, of: earnings.of })}
+                      </div>
+                      {/* Прошлые отчёты: факт против прогноза, свежие слева */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {earnings.past.map((e) => (
+                          <span
+                            key={e.date}
+                            title={`${e.date}: ${e.epsActual} ${t('vsShort')} ${e.epsEstimated}`}
+                            className={`text-[11px] tnum px-1.5 py-0.5 border ${
+                              e.beat ? 'text-up border-up/35 bg-up/10' : 'text-down border-down/35 bg-down/10'
+                            }`}
+                          >
+                            {e.date.slice(0, 7)} {e.beat ? '+' : ''}{(e.epsActual - e.epsEstimated).toFixed(2)}
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </section>
+            )}
 
             {/* Где купить — брокеры (партнёрские хвосты в config/brokers.js) */}
             <section className="mb-6">
