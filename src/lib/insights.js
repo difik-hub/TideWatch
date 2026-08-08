@@ -148,7 +148,53 @@ export function buildInsights({ coins = [], stocks = [], global = null, rows = [
     }
   }
 
-  // ── 7. Неделя против суток: разворот заметен только на двух горизонтах сразу ──
+  // ── 7. Оборот против размера: столько за сутки не наторговывают просто так ──
+  for (const c of coins) {
+    const vol = c.total_volume
+    const cap = c.market_cap
+    if (!vol || !cap || cap < 5e7) continue
+    const ratio = vol / cap
+    if (ratio >= 0.6 && Math.abs(pct(c) ?? 0) >= 2) {
+      add({
+        id: `vol-${c.id}`, priority: 4, tone: 'neutral',
+        title: t('insVolume', { name: c.name, x: ratio.toFixed(1) }),
+        body: t('insVolumeBody'),
+        href: c.href || `/coin/${c.id}`,
+      })
+    }
+  }
+
+  // ── 8. Перекос портфеля: одна позиция решает судьбу всего капитала ──
+  const totalValue = owned.reduce((s, r) => s + (r.valueCur || 0), 0)
+  if (totalValue > 0 && owned.length > 1) {
+    const top = [...owned].sort((a, b) => (b.valueCur || 0) - (a.valueCur || 0))[0]
+    const share = ((top.valueCur || 0) / totalValue) * 100
+    if (share >= 70) {
+      add({
+        id: 'skew', priority: 2, tone: 'neutral',
+        title: t('insSkew', { sym: (top.h.symbol || '').toUpperCase(), pct: Math.round(share) }),
+        body: t('insSkewBody'),
+        href: top.c?.href || null,
+      })
+    }
+  }
+
+  // ── 9. Оба рынка в одну сторону: расходятся они чаще, чем идут вместе ──
+  if (cMed != null && sMed != null && Math.abs(cMed - sMed) < 0.4 && Math.min(cMed, sMed) >= 1.2) {
+    add({
+      id: 'sync', priority: 3, tone: 'up',
+      title: t('insSyncUp'),
+      body: t('insSyncBody', { c: cMed.toFixed(1), s: sMed.toFixed(1) }),
+    })
+  } else if (cMed != null && sMed != null && Math.abs(cMed - sMed) < 0.4 && Math.max(cMed, sMed) <= -1.2) {
+    add({
+      id: 'sync', priority: 3, tone: 'down',
+      title: t('insSyncDown'),
+      body: t('insSyncBody', { c: cMed.toFixed(1), s: sMed.toFixed(1) }),
+    })
+  }
+
+  // ── 10. Неделя против суток: разворот заметен только на двух горизонтах сразу ──
   const turned = coins
     .filter((c) => {
       const d = pct(c), w = pct7(c)

@@ -12,6 +12,9 @@ export const LANG_LABELS = {
 
 export const translations = {
   ru: {
+    insVolume: '{name}: оборот за сутки в {x} раза от всей его капитализации', insVolumeBody: 'Столько не наторговывают просто так, обычно за этим стоит новость.',
+    insSkew: '{sym} занимает {pct}% твоего капитала', insSkewBody: 'Судьба всего портфеля сейчас решается одной позицией.',
+    insSyncUp: 'Оба рынка идут вверх вместе', insSyncDown: 'Оба рынка падают вместе', insSyncBody: 'Крипта {c}%, акции {s}% — расходятся они чаще, чем идут в ногу.',
     insTitle: 'Что происходит', insEmpty: 'На рынке спокойно: заметных движений нет.', insAll: 'Вся лента цен',
     insPfDown: '{sym} у тебя в минусе на {pct}%', insPfDownBody: 'Считаем от твоей цены покупки, а не от начала суток.',
     insPfUp: '{sym} у тебя в плюсе на {pct}%', insPfUpBody: 'Считаем от твоей цены покупки, а не от начала суток.',
@@ -167,6 +170,9 @@ export const translations = {
   },
 
   en: {
+    insVolume: '{name}: daily turnover is {x}x its whole market cap', insVolumeBody: 'That much volume rarely happens without news behind it.',
+    insSkew: '{sym} holds {pct}% of your capital', insSkewBody: 'One position decides the fate of the whole portfolio.',
+    insSyncUp: 'Both markets are rising together', insSyncDown: 'Both markets are falling together', insSyncBody: 'Crypto {c}%, stocks {s}% — they part ways more often than they match.',
     insTitle: 'What is happening', insEmpty: 'Markets are quiet: nothing notable is moving.', insAll: 'Full price list',
     insPfDown: 'Your {sym} is down {pct}%', insPfDownBody: 'Counted from your buy price, not from midnight.',
     insPfUp: 'Your {sym} is up {pct}%', insPfUpBody: 'Counted from your buy price, not from midnight.',
@@ -322,6 +328,9 @@ export const translations = {
   },
 
   it: {
+    insVolume: '{name}: scambi giornalieri pari a {x} volte la capitalizzazione', insVolumeBody: 'Volumi simili di rado accadono senza una notizia dietro.',
+    insSkew: '{sym} vale il {pct}% del tuo capitale', insSkewBody: 'Una sola posizione decide la sorte di tutto il portafoglio.',
+    insSyncUp: 'Entrambi i mercati salgono insieme', insSyncDown: 'Entrambi i mercati scendono insieme', insSyncBody: 'Cripto {c}%, azioni {s}%: piu spesso vanno in direzioni diverse.',
     insTitle: 'Cosa sta succedendo', insEmpty: 'Mercati tranquilli: nessun movimento rilevante.', insAll: 'Tutti i prezzi',
     insPfDown: 'Il tuo {sym} perde il {pct}%', insPfDownBody: 'Calcolato dal tuo prezzo di acquisto.',
     insPfUp: 'Il tuo {sym} guadagna il {pct}%', insPfUpBody: 'Calcolato dal tuo prezzo di acquisto.',
@@ -454,6 +463,9 @@ export const translations = {
   },
 
   de: {
+    insVolume: '{name}: Tagesumsatz ist das {x}-fache der Marktkapitalisierung', insVolumeBody: 'So viel Umsatz passiert selten ohne Nachricht dahinter.',
+    insSkew: '{sym} macht {pct}% deines Kapitals aus', insSkewBody: 'Eine Position entscheidet ueber das ganze Portfolio.',
+    insSyncUp: 'Beide Maerkte steigen gemeinsam', insSyncDown: 'Beide Maerkte fallen gemeinsam', insSyncBody: 'Krypto {c}%, Aktien {s}% — meist laufen sie auseinander.',
     insTitle: 'Was gerade passiert', insEmpty: 'Ruhige Maerkte: nichts Nennenswertes bewegt sich.', insAll: 'Alle Kurse',
     insPfDown: 'Dein {sym} liegt {pct}% im Minus', insPfDownBody: 'Gerechnet ab deinem Kaufpreis.',
     insPfUp: 'Dein {sym} liegt {pct}% im Plus', insPfUpBody: 'Gerechnet ab deinem Kaufpreis.',
@@ -586,6 +598,9 @@ export const translations = {
   },
 
   fr: {
+    insVolume: '{name} : volume du jour egal a {x} fois sa capitalisation', insVolumeBody: 'Un tel volume arrive rarement sans nouvelle derriere.',
+    insSkew: '{sym} represente {pct}% de ton capital', insSkewBody: 'Une seule position decide du sort de tout le portefeuille.',
+    insSyncUp: 'Les deux marches montent ensemble', insSyncDown: 'Les deux marches baissent ensemble', insSyncBody: 'Crypto {c}%, actions {s}% : le plus souvent ils divergent.',
     insTitle: 'Ce qui se passe', insEmpty: 'Marches calmes : rien de notable ne bouge.', insAll: 'Tous les cours',
     insPfDown: 'Ton {sym} est en baisse de {pct}%', insPfDownBody: 'Calcule depuis ton prix d achat.',
     insPfUp: 'Ton {sym} est en hausse de {pct}%', insPfUpBody: 'Calcule depuis ton prix d achat.',
@@ -718,6 +733,9 @@ export const translations = {
   },
 
   es: {
+    insVolume: '{name}: volumen diario de {x} veces su capitalizacion', insVolumeBody: 'Tanto volumen rara vez ocurre sin una noticia detras.',
+    insSkew: '{sym} supone el {pct}% de tu capital', insSkewBody: 'Una sola posicion decide la suerte de toda la cartera.',
+    insSyncUp: 'Ambos mercados suben juntos', insSyncDown: 'Ambos mercados bajan juntos', insSyncBody: 'Cripto {c}%, acciones {s}%: lo normal es que difieran.',
     insTitle: 'Que esta pasando', insEmpty: 'Mercados tranquilos: nada relevante se mueve.', insAll: 'Todos los precios',
     insPfDown: 'Tu {sym} pierde un {pct}%', insPfDownBody: 'Calculado desde tu precio de compra.',
     insPfUp: 'Tu {sym} gana un {pct}%', insPfUpBody: 'Calculado desde tu precio de compra.',
