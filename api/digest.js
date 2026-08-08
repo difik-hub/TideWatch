@@ -53,8 +53,11 @@ async function stockQuote(symbol) {
 }
 
 export default async function handler(req, res) {
+  // Прогон без отправки открыт всем: он только читает публичные котировки и
+  // возвращает текст, ничего не публикуя. Ключ стережёт именно публикацию.
+  const dry = new URL(req.url, 'http://localhost').searchParams.get('dry') === '1'
   const secret = process.env.CRON_SECRET
-  if (secret && req.headers.authorization !== `Bearer ${secret}`) {
+  if (!dry && secret && req.headers.authorization !== `Bearer ${secret}`) {
     res.status(401).json({ error: 'unauthorized' }); return
   }
 
@@ -111,7 +114,7 @@ export default async function handler(req, res) {
     const text = mode === 'both' ? `${block('ru')}\n\n➖➖➖\n\n${block('en')}` : block(mode)
 
     // Прогон без отправки: посмотреть, что уйдёт в канал, не публикуя пост
-    if (new URL(req.url, 'http://localhost').searchParams.get('dry') === '1') {
+    if (dry) {
       res.status(200).json({ dry: true, stocks: stocks.length, text })
       return
     }
