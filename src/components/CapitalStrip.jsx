@@ -49,7 +49,9 @@ export default function CapitalStrip() {
   if (!list.length) {
     return (
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 px-3 py-2 border border-line bg-panel mb-3">
-        <span className="text-[12px] text-soft">{t('ovEmpty')}</span>
+        {/* На телефоне длинное объяснение занимало три строки и отодвигало
+            наблюдения: там достаточно самой кнопки. */}
+        <span className="hidden sm:inline text-[12px] text-soft">{t('ovEmpty')}</span>
         <button
           onClick={() => ui.openPortfolio()}
           className="text-[12px] font-semibold text-brand-ink hover:underline inline-flex items-center gap-1"

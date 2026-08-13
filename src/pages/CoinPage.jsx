@@ -184,7 +184,22 @@ export default function CoinPage() {
     }
   }, [coin, md, currency])
 
-  const summary = useMemo(() => (summaryObj ? buildSummary(summaryObj, lang) : ''), [summaryObj, lang])
+  // Как за сутки прошла типичная монета топа — опора для фразы «сильнее рынка».
+  // Медиана, а не среднее: одна улетевшая монета не должна задирать планку.
+  const marketMedian = useMemo(() => {
+    const arr = others
+      .map((c) => c.price_change_percentage_24h_in_currency ?? c.price_change_percentage_24h)
+      .filter((n) => n != null && isFinite(n))
+      .sort((a, b) => a - b)
+    if (arr.length < 4) return null
+    const m = arr.length >> 1
+    return arr.length % 2 ? arr[m] : (arr[m - 1] + arr[m]) / 2
+  }, [others])
+
+  const summary = useMemo(
+    () => (summaryObj ? buildSummary(summaryObj, lang, marketMedian) : ''),
+    [summaryObj, lang, marketMedian],
+  )
 
   const onToggleFav = () => setFavs(new Set(toggleFavorite(id)))
 

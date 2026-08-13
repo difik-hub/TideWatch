@@ -3,6 +3,7 @@
 
 const PHRASES = {
   ru: {
+    vsStronger: 'Это сильнее рынка: типичная монета за сутки {v}.', vsWeaker: 'Это слабее рынка: типичная монета за сутки {v}.', vsSame: 'Движется заодно с рынком.',
     flat: 'почти без движения', slightUp: 'немного вырос', slightDown: 'немного снизился',
     notableUp: 'заметно вырос', notableDown: 'заметно снизился', sharpUp: 'резко вырос', sharpDown: 'резко упал',
     day: 'За сутки', week: 'За неделю', month: 'За месяц',
@@ -12,6 +13,7 @@ const PHRASES = {
     highVol: 'Высокая волатильность.', lowVol: 'Движений мало, рынок спокоен.',
   },
   en: {
+    vsStronger: 'Stronger than the market: a typical coin is {v} today.', vsWeaker: 'Weaker than the market: a typical coin is {v} today.', vsSame: 'Moving in step with the market.',
     flat: 'barely moved', slightUp: 'edged up', slightDown: 'edged down',
     notableUp: 'rose', notableDown: 'fell', sharpUp: 'jumped', sharpDown: 'dropped',
     day: 'Past 24 hours', week: 'Past week', month: 'Past month',
@@ -21,6 +23,7 @@ const PHRASES = {
     highVol: 'Volatility is high.', lowVol: 'Little movement, the market is calm.',
   },
   it: {
+    vsStronger: 'Piu forte del mercato: la cripto tipica fa {v} oggi.', vsWeaker: 'Piu debole del mercato: la cripto tipica fa {v} oggi.', vsSame: 'Si muove insieme al mercato.',
     flat: 'quasi fermo', slightUp: 'in lieve rialzo', slightDown: 'in lieve calo',
     notableUp: 'in rialzo', notableDown: 'in calo', sharpUp: 'in forte rialzo', sharpDown: 'in forte calo',
     day: 'Nelle 24 ore', week: 'Sulla settimana', month: 'Sul mese',
@@ -30,6 +33,7 @@ const PHRASES = {
     highVol: 'Volatilità elevata.', lowVol: 'Pochi movimenti, mercato calmo.',
   },
   de: {
+    vsStronger: 'Staerker als der Markt: eine typische Coin macht heute {v}.', vsWeaker: 'Schwaecher als der Markt: eine typische Coin macht heute {v}.', vsSame: 'Bewegt sich im Gleichschritt mit dem Markt.',
     flat: 'kaum bewegt', slightUp: 'leicht gestiegen', slightDown: 'leicht gefallen',
     notableUp: 'gestiegen', notableDown: 'gefallen', sharpUp: 'stark gestiegen', sharpDown: 'stark gefallen',
     day: 'In 24 Stunden', week: 'In einer Woche', month: 'In einem Monat',
@@ -39,6 +43,7 @@ const PHRASES = {
     highVol: 'Hohe Volatilität.', lowVol: 'Wenig Bewegung, ruhiger Markt.',
   },
   fr: {
+    vsStronger: 'Plus fort que le marche : une crypto typique fait {v} aujourd hui.', vsWeaker: 'Plus faible que le marche : une crypto typique fait {v} aujourd hui.', vsSame: 'Evolue au meme rythme que le marche.',
     flat: 'quasi stable', slightUp: 'en légère hausse', slightDown: 'en légère baisse',
     notableUp: 'en hausse', notableDown: 'en baisse', sharpUp: 'en forte hausse', sharpDown: 'en forte baisse',
     day: 'Sur 24 heures', week: 'Sur une semaine', month: 'Sur un mois',
@@ -48,6 +53,7 @@ const PHRASES = {
     highVol: 'Volatilité élevée.', lowVol: 'Peu de mouvement, marché calme.',
   },
   es: {
+    vsStronger: 'Mas fuerte que el mercado: una cripto tipica hace {v} hoy.', vsWeaker: 'Mas debil que el mercado: una cripto tipica hace {v} hoy.', vsSame: 'Se mueve al ritmo del mercado.',
     flat: 'casi sin cambios', slightUp: 'sube ligeramente', slightDown: 'baja ligeramente',
     notableUp: 'sube', notableDown: 'baja', sharpUp: 'sube con fuerza', sharpDown: 'baja con fuerza',
     day: 'En 24 horas', week: 'En una semana', month: 'En un mes',
@@ -71,7 +77,9 @@ function fmt(n) {
   return (n > 0 ? '+' : '') + n.toFixed(1) + '%'
 }
 
-export function buildSummary(market, lang = 'en') {
+// marketMedian — как за сутки прошла типичная монета топа. Без этой опоры
+// «вырос на 1.6%» ничего не говорит: рынок мог вырасти на три процента.
+export function buildSummary(market, lang = 'en', marketMedian = null) {
   if (!market) return ''
   const L = PHRASES[lang] || PHRASES.en
   const d1 = market.price_change_percentage_24h_in_currency ?? market.price_change_percentage_24h
@@ -89,6 +97,16 @@ export function buildSummary(market, lang = 'en') {
     if (fromAth > -3) parts.push(L.nearAth)
     else if (fromAth < -70) parts.push(L.belowAth.replace('{v}', Math.abs(fromAth).toFixed(0)))
     else parts.push(L.fromAth.replace('{v}', Math.abs(fromAth).toFixed(0)))
+  }
+
+  // Сравнение с рынком идёт сразу после дневного движения: именно оно
+  // превращает голый процент в факт «сильнее» или «слабее остальных».
+  if (d1 != null && marketMedian != null && isFinite(marketMedian)) {
+    const gap = d1 - marketMedian
+    const med = fmt(marketMedian)
+    if (gap >= 2) parts.splice(1, 0, L.vsStronger.replace('{v}', med))
+    else if (gap <= -2) parts.splice(1, 0, L.vsWeaker.replace('{v}', med))
+    else parts.splice(1, 0, L.vsSame)
   }
 
   if (d1 != null && d7 != null) {
