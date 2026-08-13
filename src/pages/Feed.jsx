@@ -393,12 +393,9 @@ export default function Feed() {
           <div className="mb-4 text-center text-xs text-soft">{t('staleNotice')}</div>
         )}
 
-        {/* FNG ужат в мини-метрику внутри панели Hero */}
-        {showHero && coins.length > 0 && <Onboarding />}
-        {showHero && coins.length > 0 && <NowMoving coins={coins} />}
-
-        {/* Наблюдения идут ПЕРЕД таблицей: человек приходит с вопросом «что там»,
-            а не «покажи мне сетку чисел». Таблица никуда не делась, она ниже. */}
+        {/* Наблюдения — первое, что видно после шапки, и на телефоне тоже:
+            человек приходит с вопросом «что там», а не «покажи сетку чисел».
+            Подсказка, бегущая строка и таблица идут после них. */}
         {!query && !onlyFav && insights.length > 0 && (
           <section className="mb-4">
             <h2 className="text-[13px] font-semibold mb-1.5 flex items-center gap-1.5">
@@ -408,6 +405,10 @@ export default function Feed() {
             <InsightFeed items={insights} assets={assetsByHref} />
           </section>
         )}
+
+        {/* Подсказка новичку и бегущая строка — уже после наблюдений */}
+        {showHero && coins.length > 0 && <Onboarding />}
+        {showHero && coins.length > 0 && <NowMoving coins={coins} />}
 
         {/* Быстрый доступ к функциям — на виду, а не спрятаны в меню */}
         {/* Инструменты и заголовок ленты одной полосой: раньше это были два ряда

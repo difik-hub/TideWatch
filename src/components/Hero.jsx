@@ -10,9 +10,9 @@ const trendColor = { rise: 'text-up', fall: 'text-down', flat: 'text-soft' }
 
 // Ячейка полосы: подпись сверху мелким, значение снизу. Всё в одну строку высоты,
 // чтобы шапка рынка занимала полосу, а не половину первого экрана.
-function Metric({ label, value, trend, arrow, tip }) {
+function Metric({ label, value, trend, arrow, tip, className = '' }) {
   return (
-    <div className="px-3 py-1.5 border-r border-line last:border-r-0 min-w-0">
+    <div className={`px-3 py-1.5 border-r border-line last:border-r-0 min-w-0 ${className}`}>
       <div className="text-[9px] uppercase tracking-[0.12em] text-faint flex items-center gap-1 truncate">
         {label}{tip && <InfoTip text={tip} />}
       </div>
@@ -49,6 +49,8 @@ export default function Hero({ global, coins }) {
           первый экран отдан цифрам. */}
       <h1 className="sr-only">{t('heroTitle')} {t('heroAccent')}</h1>
 
+      {/* На телефоне показываем только две метрики: остальные три уводили
+          наблюдения ниже сгиба, а «доминация BTC» первым экраном не нужна. */}
       <div className="grid grid-cols-2 sm:grid-cols-5 items-stretch border border-line bg-panel">
         <Metric
           label={t('mMarketCap')}
@@ -57,15 +59,15 @@ export default function Hero({ global, coins }) {
           trend={trendOf(mcapChange)}
           arrow
         />
-        <Metric label={t('mBtcDom')} tip={t('tipDom')} value={btcDom != null ? btcDom.toFixed(1) + '%' : '—'} />
+        <Metric className="hidden sm:block" label={t('mBtcDom')} tip={t('tipDom')} value={btcDom != null ? btcDom.toFixed(1) + '%' : '—'} />
         <Metric
           label={t('mBreadth')}
           tip={t('tipBreadth')}
           value={total ? `${up} / ${down}` : '—'}
           trend={up >= down ? 'rise' : 'fall'}
         />
-        <Metric label={t('mTotal')} value={activeCoins ? activeCoins.toLocaleString('en-US') : '—'} />
-        <FearGreed compact />
+        <Metric className="hidden sm:block" label={t('mTotal')} value={activeCoins ? activeCoins.toLocaleString('en-US') : '—'} />
+        <span className="hidden sm:block"><FearGreed compact /></span>
       </div>
 
       {/* Сводка человеческим языком: наш крючок, поэтому остаётся на первом экране,
