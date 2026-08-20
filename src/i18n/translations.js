@@ -12,6 +12,9 @@ export const LANG_LABELS = {
 
 export const translations = {
   ru: {
+    cmpDayWin: 'За сутки впереди {name} ({v}).', cmpWeekWin: 'За неделю впереди {name} ({v}).',
+    hmVerdict: 'В плюсе {up} из {total}.', hmBest: 'Сильнее всех {name} (+{v}%).', hmWorst: 'Слабее всех {name} (-{v}%).',
+    stVsStronger: 'Сильнее рынка акций.', stVsWeaker: 'Слабее рынка акций.', stVsSame: 'Идёт вровень с рынком акций.', stVsMed: 'Типичная акция за сутки {v}.',
     insVolume: '{name}: оборот за сутки в {x} раза от всей его капитализации', insVolumeBody: 'Столько не наторговывают просто так, обычно за этим стоит новость.',
     insSkew: '{sym} занимает {pct}% твоего капитала', insSkewBody: 'Судьба всего портфеля сейчас решается одной позицией.',
     insSyncUp: 'Оба рынка идут вверх вместе', insSyncDown: 'Оба рынка падают вместе', insSyncBody: 'Крипта {c}%, акции {s}% — расходятся они чаще, чем идут в ногу.',
@@ -170,6 +173,9 @@ export const translations = {
   },
 
   en: {
+    cmpDayWin: 'Over 24h {name} leads ({v}).', cmpWeekWin: 'Over the week {name} leads ({v}).',
+    hmVerdict: '{up} of {total} are up.', hmBest: 'Strongest is {name} (+{v}%).', hmWorst: 'Weakest is {name} (-{v}%).',
+    stVsStronger: 'Stronger than the stock market.', stVsWeaker: 'Weaker than the stock market.', stVsSame: 'In step with the stock market.', stVsMed: 'A typical stock is {v} today.',
     insVolume: '{name}: daily turnover is {x}x its whole market cap', insVolumeBody: 'That much volume rarely happens without news behind it.',
     insSkew: '{sym} holds {pct}% of your capital', insSkewBody: 'One position decides the fate of the whole portfolio.',
     insSyncUp: 'Both markets are rising together', insSyncDown: 'Both markets are falling together', insSyncBody: 'Crypto {c}%, stocks {s}% — they part ways more often than they match.',
@@ -328,6 +334,9 @@ export const translations = {
   },
 
   it: {
+    cmpDayWin: 'Nelle 24h avanti {name} ({v}).', cmpWeekWin: 'Sulla settimana avanti {name} ({v}).',
+    hmVerdict: 'In rialzo {up} su {total}.', hmBest: 'Il piu forte e {name} (+{v}%).', hmWorst: 'Il piu debole e {name} (-{v}%).',
+    stVsStronger: 'Piu forte del mercato azionario.', stVsWeaker: 'Piu debole del mercato azionario.', stVsSame: 'In linea con il mercato azionario.', stVsMed: 'Azione tipica {v} oggi.',
     insVolume: '{name}: scambi giornalieri pari a {x} volte la capitalizzazione', insVolumeBody: 'Volumi simili di rado accadono senza una notizia dietro.',
     insSkew: '{sym} vale il {pct}% del tuo capitale', insSkewBody: 'Una sola posizione decide la sorte di tutto il portafoglio.',
     insSyncUp: 'Entrambi i mercati salgono insieme', insSyncDown: 'Entrambi i mercati scendono insieme', insSyncBody: 'Cripto {c}%, azioni {s}%: piu spesso vanno in direzioni diverse.',
@@ -463,6 +472,9 @@ export const translations = {
   },
 
   de: {
+    cmpDayWin: 'In 24 Std fuehrt {name} ({v}).', cmpWeekWin: 'Auf Wochensicht fuehrt {name} ({v}).',
+    hmVerdict: '{up} von {total} im Plus.', hmBest: 'Am staerksten {name} (+{v}%).', hmWorst: 'Am schwaechsten {name} (-{v}%).',
+    stVsStronger: 'Staerker als der Aktienmarkt.', stVsWeaker: 'Schwaecher als der Aktienmarkt.', stVsSame: 'Im Gleichschritt mit dem Aktienmarkt.', stVsMed: 'Typische Aktie heute {v}.',
     insVolume: '{name}: Tagesumsatz ist das {x}-fache der Marktkapitalisierung', insVolumeBody: 'So viel Umsatz passiert selten ohne Nachricht dahinter.',
     insSkew: '{sym} macht {pct}% deines Kapitals aus', insSkewBody: 'Eine Position entscheidet ueber das ganze Portfolio.',
     insSyncUp: 'Beide Maerkte steigen gemeinsam', insSyncDown: 'Beide Maerkte fallen gemeinsam', insSyncBody: 'Krypto {c}%, Aktien {s}% — meist laufen sie auseinander.',
@@ -598,6 +610,9 @@ export const translations = {
   },
 
   fr: {
+    cmpDayWin: 'Sur 24 h {name} devance ({v}).', cmpWeekWin: 'Sur la semaine {name} devance ({v}).',
+    hmVerdict: '{up} sur {total} en hausse.', hmBest: 'Le plus fort est {name} (+{v}%).', hmWorst: 'Le plus faible est {name} (-{v}%).',
+    stVsStronger: 'Plus fort que le marche actions.', stVsWeaker: 'Plus faible que le marche actions.', stVsSame: 'Au meme rythme que le marche actions.', stVsMed: 'Action typique {v} aujourd hui.',
     insVolume: '{name} : volume du jour egal a {x} fois sa capitalisation', insVolumeBody: 'Un tel volume arrive rarement sans nouvelle derriere.',
     insSkew: '{sym} represente {pct}% de ton capital', insSkewBody: 'Une seule position decide du sort de tout le portefeuille.',
     insSyncUp: 'Les deux marches montent ensemble', insSyncDown: 'Les deux marches baissent ensemble', insSyncBody: 'Crypto {c}%, actions {s}% : le plus souvent ils divergent.',
@@ -733,6 +748,9 @@ export const translations = {
   },
 
   es: {
+    cmpDayWin: 'En 24 h lidera {name} ({v}).', cmpWeekWin: 'En la semana lidera {name} ({v}).',
+    hmVerdict: '{up} de {total} en positivo.', hmBest: 'El mas fuerte es {name} (+{v}%).', hmWorst: 'El mas debil es {name} (-{v}%).',
+    stVsStronger: 'Mas fuerte que el mercado de acciones.', stVsWeaker: 'Mas debil que el mercado de acciones.', stVsSame: 'A la par del mercado de acciones.', stVsMed: 'Accion tipica {v} hoy.',
     insVolume: '{name}: volumen diario de {x} veces su capitalizacion', insVolumeBody: 'Tanto volumen rara vez ocurre sin una noticia detras.',
     insSkew: '{sym} supone el {pct}% de tu capital', insSkewBody: 'Una sola posicion decide la suerte de toda la cartera.',
     insSyncUp: 'Ambos mercados suben juntos', insSyncDown: 'Ambos mercados bajan juntos', insSyncBody: 'Cripto {c}%, acciones {s}%: lo normal es que difieran.',

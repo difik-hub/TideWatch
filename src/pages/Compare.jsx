@@ -36,6 +36,23 @@ export default function Compare() {
   const addCol = () => picks.length < 3 && setPicks((p) => [...p, coins.find((c) => !p.includes(c.id))?.id || 'tether'])
   const removeCol = (i) => picks.length > 1 && setPicks((p) => p.filter((_, idx) => idx !== i))
 
+  // Вывод по сравнению: таблица показывает цифры рядом, но кто из активов
+  // на каком горизонте сильнее — человек считает в уме. Считаем за него.
+  const verdict = useMemo(() => {
+    if (selected.length < 2) return null
+    const d24 = (c) => c.price_change_percentage_24h_in_currency ?? c.price_change_percentage_24h
+    const d7 = (c) => c.price_change_percentage_7d_in_currency
+    const bestBy = (fn) => {
+      const ok = selected.filter((c) => fn(c) != null && isFinite(fn(c)))
+      if (ok.length < 2) return null
+      const sorted = [...ok].sort((a, b) => fn(b) - fn(a))
+      // Разрыв меньше половины процента — считаем, что идут вровень
+      if (fn(sorted[0]) - fn(sorted[1]) < 0.5) return null
+      return { name: sorted[0].name, v: fn(sorted[0]) }
+    }
+    return { day: bestBy(d24), week: bestBy(d7) }
+  }, [selected])
+
   const rows = [
     { label: t('lblCap'), get: (c) => formatBig(c.market_cap, currency) },
     { label: t('stVolume'), get: (c) => formatBig(c.total_volume, currency) },
@@ -56,6 +73,14 @@ export default function Compare() {
         <h1 className="text-xl font-semibold tracking-tight mb-5 flex items-center gap-2">
           <Icon name="compare" size={20} className="text-brand-ink" /> {t('cmpTitle')}
         </h1>
+
+        {verdict && (verdict.day || verdict.week) && (
+          <p className="text-[13px] text-soft mb-4 -mt-3 max-w-[62ch]">
+            {verdict.day && t('cmpDayWin', { name: verdict.day.name, v: `${verdict.day.v >= 0 ? '+' : ''}${verdict.day.v.toFixed(1)}%` })}
+            {verdict.day && verdict.week && ' '}
+            {verdict.week && t('cmpWeekWin', { name: verdict.week.name, v: `${verdict.week.v >= 0 ? '+' : ''}${verdict.week.v.toFixed(1)}%` })}
+          </p>
+        )}
 
         {coins.length === 0 ? (
           <div className="text-soft text-center py-12">…</div>

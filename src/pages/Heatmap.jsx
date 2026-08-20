@@ -103,6 +103,29 @@ export default function Heatmap() {
     [coins],
   )
 
+  // Итог по карте одной фразой: цвета показывают распределение, но вывод из них
+  // человек делает сам. Здесь он уже сделан.
+  const verdict = useMemo(() => {
+    const vals = coins
+      .map((c) => c.price_change_percentage_24h_in_currency ?? c.price_change_percentage_24h)
+      .filter((n) => n != null && isFinite(n))
+    if (vals.length < 6) return null
+    const up = vals.filter((v) => v > 0).length
+    const sorted = [...coins]
+      .filter((c) => (c.price_change_percentage_24h_in_currency ?? c.price_change_percentage_24h) != null)
+      .sort((a, b) => (b.price_change_percentage_24h_in_currency ?? b.price_change_percentage_24h)
+                    - (a.price_change_percentage_24h_in_currency ?? a.price_change_percentage_24h))
+    const best = sorted[0]
+    const worst = sorted[sorted.length - 1]
+    const pctOf = (c) => c.price_change_percentage_24h_in_currency ?? c.price_change_percentage_24h
+    return {
+      up,
+      total: vals.length,
+      best: best ? { name: best.name, v: pctOf(best) } : null,
+      worst: worst ? { name: worst.name, v: pctOf(worst) } : null,
+    }
+  }, [coins])
+
   return (
     <div className="min-h-[100dvh] page">
       <Nav />
@@ -116,7 +139,15 @@ export default function Heatmap() {
             <h1 className="text-xl font-semibold tracking-tight mb-1 flex items-center gap-2">
               <Icon name="grid" size={20} className="text-brand-ink" /> {t('heatmapTitle')}
             </h1>
-            <p className="text-soft text-sm">{t('heatmapHint')}</p>
+            {verdict ? (
+              <p className="text-soft text-sm max-w-[60ch]">
+                {t('hmVerdict', { up: verdict.up, total: verdict.total })}
+                {verdict.best && verdict.best.v > 0 && ' ' + t('hmBest', { name: verdict.best.name, v: verdict.best.v.toFixed(1) })}
+                {verdict.worst && verdict.worst.v < 0 && ' ' + t('hmWorst', { name: verdict.worst.name, v: Math.abs(verdict.worst.v).toFixed(1) })}
+              </p>
+            ) : (
+              <p className="text-soft text-sm">{t('heatmapHint')}</p>
+            )}
           </div>
           <div className="flex items-center gap-4">
             {/* Вкладки Крипта | Акции */}

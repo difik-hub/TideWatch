@@ -5,7 +5,7 @@ import PriceChart from '../components/PriceChart'
 import Forecast from '../components/Forecast'
 import TickerLogo from '../components/TickerLogo'
 import Icon, { TrendArrow } from '../components/Icon'
-import { fetchStockQuote, fetchStockSeries, fetchStockProfile, fetchStockEarnings, daysUntil } from '../lib/stocksApi'
+import { fetchStockQuote, fetchStockSeries, fetchStockProfile, fetchStockEarnings, daysUntil, fetchStocks } from '../lib/stocksApi'
 import { fetchRates } from '../lib/api'
 import { isUSMarketOpen } from '../lib/market'
 import { formatPrice, formatBig, formatNum, formatPct, trendOf, convertPrice } from '../lib/format'
@@ -49,6 +49,7 @@ export default function StockPage() {
   const [profile, setProfile] = useState(null)
   const [earnings, setEarnings] = useState(null)
   const [rates, setRates] = useState(null)
+  const [peers, setPeers] = useState([])
   const [loading, setLoading] = useState(true)
   const [favs, setFavs] = useState(() => getFavorites())
   const [amount, setAmount] = useState('')
@@ -66,6 +67,9 @@ export default function StockPage() {
     fetchStockSeries(symbol, 90).then((s) => alive && setSeries(s)).catch(() => {})
     fetchStockProfile(symbol).then((p) => alive && setProfile(p)).catch(() => {})
     fetchStockEarnings(symbol).then((e) => alive && setEarnings(e)).catch(() => {})
+    // Лента акций — только ради медианы: «+3%» ничего не значит, если весь
+    // рынок сегодня прибавил пять. Запрос кешируется, лишней нагрузки нет.
+    fetchStocks().then((l) => alive && setPeers(Array.isArray(l) ? l : [])).catch(() => {})
     return () => { alive = false }
   }, [symbol])
 
@@ -81,6 +85,28 @@ export default function StockPage() {
     if (!series) return null
     return series.map((p) => ({ label: p.t?.slice(5), price: toCur(p.price) }))
   }, [series, rates, currency])
+
+  // Как прошла типичная акция из нашей ленты за сутки
+  const peerMedian = useMemo(() => {
+    const arr = peers
+      .filter((c) => c.symbol !== symbol)
+      .map((c) => c.price_change_percentage_24h_in_currency ?? c.price_change_percentage_24h)
+      .filter((n) => n != null && isFinite(n))
+      .sort((a, b) => a - b)
+    if (arr.length < 4) return null
+    const m = arr.length >> 1
+    return arr.length % 2 ? arr[m] : (arr[m - 1] + arr[m]) / 2
+  }, [peers, symbol])
+
+  // «Сильнее» или «слабее» рынка — то, чего не скажет голый процент
+  const vsMarket = useMemo(() => {
+    if (d == null || peerMedian == null) return null
+    const gap = d - peerMedian
+    const med = `${peerMedian >= 0 ? '+' : ''}${peerMedian.toFixed(1)}%`
+    if (gap >= 2) return { key: 'stVsStronger', med, tone: 'up' }
+    if (gap <= -2) return { key: 'stVsWeaker', med, tone: 'down' }
+    return { key: 'stVsSame', med, tone: 'flat' }
+  }, [d, peerMedian])
 
   const range52 = useMemo(() => {
     const w = stock?.fifty_two_week
@@ -166,6 +192,14 @@ export default function StockPage() {
                 <TrendArrow dir={tr} size={11} /> {formatPct(d)}
               </div>
             </div>
+
+            {/* Сравнение с рынком акций: без него процент за сутки не читается */}
+            {vsMarket && (
+              <p className="text-[13px] mb-5 -mt-3">
+                <span className={trendColor[vsMarket.tone]}>{t(vsMarket.key)}</span>
+                <span className="text-soft"> {t('stVsMed', { v: vsMarket.med })}</span>
+              </p>
+            )}
 
             {/* График */}
             <div className="card rounded-2xl p-3 mb-5">
