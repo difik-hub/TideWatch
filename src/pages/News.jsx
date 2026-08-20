@@ -4,6 +4,8 @@ import Nav from '../components/Nav'
 import Icon from '../components/Icon'
 import { CHANGELOG } from '../config/changelog'
 import { fetchCryptoNews } from '../lib/newsApi'
+import { fetchMarkets, fetchGlobal } from '../lib/api'
+import { buildMarketSummary } from '../lib/marketSummary'
 import { useSettings } from '../store/settings'
 import { useT } from '../i18n/useT'
 
@@ -26,12 +28,18 @@ export default function News() {
   const { lang } = useSettings()
   const t = useT()
   const [news, setNews] = useState(null)
+  const [market, setMarket] = useState('')
 
   useEffect(() => {
     let alive = true
     fetchCryptoNews().then((n) => alive && setNews(n)).catch(() => alive && setNews([]))
+    // Состояние рынка рядом с заголовками: новость читается иначе, когда видно,
+    // спокоен рынок или падает. Оба запроса уже лежат в кеше после главной.
+    Promise.all([fetchGlobal().catch(() => null), fetchMarkets(50, 1, 'usd').catch(() => [])])
+      .then(([g, coins]) => { if (alive) setMarket(buildMarketSummary(g, coins, lang) || '') })
+      .catch(() => {})
     return () => { alive = false }
-  }, [])
+  }, [lang])
 
   const fmtDate = (d) => {
     try { return new Date(d).toLocaleDateString(lang, { day: 'numeric', month: 'short', year: 'numeric' }) }
@@ -47,7 +55,14 @@ export default function News() {
           <Icon name="back" size={16} /> {t('back')}
         </Link>
 
-        <h1 className="text-2xl font-bold mb-6">{t('newsTitle')}</h1>
+        <h1 className="text-2xl font-bold mb-2">{t('newsTitle')}</h1>
+
+        {market && (
+          <p className="text-[13px] text-soft leading-snug mb-6 max-w-[70ch]">
+            <span className="text-brand-ink font-semibold uppercase tracking-wider text-[10px] mr-2">{t('marketNow')}</span>
+            {market}
+          </p>
+        )}
 
         {/* Наши обновления */}
         <section className="mb-9">
