@@ -8,7 +8,8 @@ import { fetchStocks } from '../lib/stocksApi'
 import { subscribeLive } from '../lib/binanceLive'
 import { getPortfolio } from '../lib/portfolio'
 import { computeRows, totals as computeTotals } from '../lib/portfolioCalc'
-import { buildEvents } from '../lib/events'
+import { buildInsights } from '../lib/insights'
+import { getAlerts } from '../lib/alerts'
 import { buildMarketSummary } from '../lib/marketSummary'
 import { formatPrice, formatPct, trendOf } from '../lib/format'
 import { useSettings } from '../store/settings'
@@ -101,7 +102,12 @@ export default function Overview() {
   )
   const rows = useMemo(() => computeRows(holdings, byId, rates, currency), [holdings, byId, rates, currency])
   const tot = useMemo(() => computeTotals(rows), [rows])
-  const events = useMemo(() => buildEvents(rows, tot, t), [rows, tot, t])
+  // Один движок на весь продукт: раньше здесь был отдельный buildEvents, который
+  // частично повторял наблюдения главной. Теперь та же логика и те же правила.
+  const events = useMemo(
+    () => buildInsights({ coins, stocks, rows, portfolioTotals: tot, firedAlerts: getAlerts(), t }),
+    [coins, stocks, rows, tot, t],
+  )
   const owned = useMemo(() => new Set(holdings.map((h) => h.coinId)), [holdings])
 
   const summary = buildMarketSummary(global, coins, lang)
@@ -202,11 +208,11 @@ export default function Overview() {
                 {events.map((e) => (
                   <div key={e.id} className="px-3 py-2 border-b border-line last:border-b-0 flex gap-2.5">
                     <span className={`mt-1.5 w-1.5 h-1.5 shrink-0 ${
-                      e.kind === 'alert' ? 'bg-brand' : e.kind === 'up' ? 'bg-up' : 'bg-down'
+                      e.tone === 'up' ? 'bg-up' : e.tone === 'down' ? 'bg-down' : 'bg-brand'
                     }`} />
                     <span className="min-w-0">
                       <span className="block text-[13px] leading-snug">{e.title}</span>
-                      <span className="block text-[11px] text-faint leading-snug">{e.note}</span>
+                      <span className="block text-[11px] text-faint leading-snug">{e.body}</span>
                     </span>
                   </div>
                 ))}

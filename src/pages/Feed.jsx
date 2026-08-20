@@ -20,7 +20,7 @@ import { computeRows } from '../lib/portfolioCalc'
 import TickerLogo from '../components/TickerLogo'
 import { subscribeLive } from '../lib/binanceLive'
 import { getFavorites, toggleFavorite } from '../lib/favorites'
-import { checkAlerts, notify, playAlertSound } from '../lib/alerts'
+import { checkAlerts, notify, playAlertSound, getAlerts } from '../lib/alerts'
 import { convertPrice } from '../lib/format'
 import { TON_ADDRESS, tonDonateUrl } from '../config/support'
 import { useSettings } from '../store/settings'
@@ -158,6 +158,7 @@ export default function Feed() {
       global: fng ? { fng: fng.value } : null,
       rows,
       calendar,
+      firedAlerts: getAlerts(),
       t,
     })
   }, [coins, otherMarket, tab, holdings, rates, currency, fng, calendar, t])

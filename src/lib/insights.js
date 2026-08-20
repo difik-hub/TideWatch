@@ -33,7 +33,9 @@ function outliers(list, limit = 3) {
 }
 
 // list — крипта, stocks — акции, portfolio — [{row из portfolioCalc}]
-export function buildInsights({ coins = [], stocks = [], global = null, rows = [], calendar = {}, t }) {
+// firedAlerts приходит снаружи, а не читается из localStorage: этот же движок
+// работает на сервере в утренней сводке, где браузерного хранилища нет.
+export function buildInsights({ coins = [], stocks = [], global = null, rows = [], calendar = {}, portfolioTotals = null, firedAlerts = [], t }) {
   const out = []
   const add = (o) => out.push(o)
 
@@ -71,6 +73,30 @@ export function buildInsights({ coins = [], stocks = [], global = null, rows = [
         href: `/stock/${sym}`,
       })
     }
+  }
+
+  // Сработавшие алерты: человек сам просил сказать ему об этом
+  for (const a of firedAlerts) {
+    if (!a?.triggered) continue
+    add({
+      id: `alert-${a.id}`, priority: 0, tone: 'neutral',
+      title: t('evAlertFired', {
+        sym: (a.symbol || '').toUpperCase(),
+        dir: a.direction === 'above' ? t('alertAbove').toLowerCase() : t('alertBelow').toLowerCase(),
+        val: a.targetDisplay,
+      }),
+      body: t('evAlertNote'),
+    })
+  }
+
+  // Итог по портфелю за сутки — один общий вывод поверх отдельных позиций
+  if (portfolioTotals?.value && portfolioTotals.change24 != null) {
+    add({
+      id: 'total-24', priority: 2,
+      tone: portfolioTotals.change24 >= 0 ? 'up' : 'down',
+      title: t('evPortfolio24', { pct: portfolioTotals.change24.toFixed(1) }),
+      body: t('evPortfolioNote'),
+    })
   }
 
   // ── 2. Два рынка: расходятся или идут вместе. Ради этого весь проект ──
